@@ -2,11 +2,13 @@ const express = require('express');
 const axios = require('axios');
 const xml2js = require('xml2js');
 const mongoose = require('mongoose');
-const Hotel = require("../models/hotel_model")
+const Hotel = require("../../models/hotel_model")
 
-module.exports.get_hotel_info =  async (req, res) => {
+module.exports.room_availability =  async (req, res) => {
 
     const hotel_r_code = req.query.hotel_r_code;
+    const check_in_date = req.query.check_in_date;
+    const check_out_date = req.query.check_out_date;
 
     try {
       // Find the hotel details based on the provided hotel name
@@ -18,7 +20,7 @@ module.exports.get_hotel_info =  async (req, res) => {
   
   console.log("making request to ezee")
     // Make a request to another API using the JSON request body
-    const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=HotelList&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&language=en`);
+    const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=RoomList&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&check_in_date=${check_in_date}&check_out_date=${check_out_date}`);
 
     // Return the JSON response from the external API
     res.json(response.data);

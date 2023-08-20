@@ -1,5 +1,5 @@
-const Booking = require("../models/booking_model")
-const Hotel = require("../models/hotel_model")
+const Booking = require("../../models/booking_model")
+const Hotel = require("../../models/hotel_model")
 const axios = require('axios');
 const xml2js = require('xml2js');
 const mongoose = require('mongoose');

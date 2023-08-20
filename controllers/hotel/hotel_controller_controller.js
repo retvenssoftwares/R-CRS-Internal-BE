@@ -1,4 +1,4 @@
-const Hotel = require("../models/hotel_model")
+const Hotel = require("../../models/hotel_model")
 
 
 module.exports.create_hotel =  async (req, res) => {

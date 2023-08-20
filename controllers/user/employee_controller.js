@@ -1,5 +1,5 @@
-const Employee = require("../models/employee_model");
-const { errorHandler } = require("../utils/dbErrorHandler");
+const Employee = require("../../models/employee_model");
+const { errorHandler } = require("../../utils/dbErrorHandler");
 const formidable = require('formidable');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -313,10 +313,15 @@ module.exports.signin = (req, res) => {
        }else if (password === employee.password) {
           //  const token = jwt.sign({ _id: employee._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
           //  res.cookie('token', token, { expiresIn: '7d' });
-           const { _id, first_name, email } = employee;
+           const { employee_id, first_name, email, role,
+            last_name,
+            country_code,
+            phone_number,
+            address,
+            gender } = employee;
            return res.json({
               //  token,
-               employee: { _id, first_name, email  }
+               employee: { employee_id, first_name, last_name, email, role, country_code, phone_number, address, gender }
            });
        }else {
          res.status(400).json({

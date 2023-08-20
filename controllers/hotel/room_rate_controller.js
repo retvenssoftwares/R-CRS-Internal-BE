@@ -2,9 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const xml2js = require('xml2js');
 const mongoose = require('mongoose');
-const Hotel = require("../models/hotel_model")
+const Hotel = require("../../models/hotel_model")
 
-module.exports.retreive_inventory =  async (req, res) => {
+module.exports.retreive_room_rate =  async (req, res) => {
 
     const hotel_r_code = req.query.hotel_r_code;
     const fromDate = req.query.fromDate;
@@ -13,7 +13,7 @@ module.exports.retreive_inventory =  async (req, res) => {
     try {
       // Find the hotel details based on the provided hotel name
       const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
-    console.log(selectedHotel)
+
       if (!selectedHotel) {
         return res.status(400).json({ error: 'Hotel not found' });
       }
@@ -21,7 +21,7 @@ module.exports.retreive_inventory =  async (req, res) => {
       // Construct the XML data to send in the POST request
       const xmlData = `
         <RES_Request>
-          <Request_Type>Inventory</Request_Type>
+          <Request_Type>Rate</Request_Type>
           <Authentication>
             <HotelCode>${selectedHotel.hotel_ezee_code}</HotelCode>
             <AuthCode>${selectedHotel.hotel_auth_code}</AuthCode>
