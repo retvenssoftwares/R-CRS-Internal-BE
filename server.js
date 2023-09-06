@@ -21,7 +21,8 @@ const get_hotel_info_router = require("./routers/hotel/get_hotel_information_rou
 const get_hotel_db_router = require("./routers/hotel/get_hotel_db_router");
 const get_booking_db_by_userID = require("./routers/booking/get_booking_db_by_userID_router");
 const get_booking_db = require("./routers/booking/get_booking_db_router");
-
+const sendPaymentLinkRouter = require("./routers/payment/send_payment_link_router");
+const getPaymentLinkByOrderIDRouter = require("./routers/payment/get_payment_links_by_orderID_router");
 
 app.use(cors({origin: "http://localhost:3000"}))
 app.use(morgan('dev'));
@@ -44,6 +45,8 @@ app.use("/api", get_hotel_info_router)
 app.use("/api", get_hotel_db_router)
 app.use("/api", get_booking_db)
 app.use("/api", get_booking_db_by_userID)
+app.use("/api", sendPaymentLinkRouter)
+app.use("/api", getPaymentLinkByOrderIDRouter)
 
 mongoose
     .connect(process.env.DATABASE, {

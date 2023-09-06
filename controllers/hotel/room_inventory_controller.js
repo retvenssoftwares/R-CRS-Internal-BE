@@ -13,7 +13,7 @@ module.exports.retreive_inventory =  async (req, res) => {
     try {
       // Find the hotel details based on the provided hotel name
       const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
-    console.log(selectedHotel)
+      console.log(selectedHotel)
       if (!selectedHotel) {
         return res.status(400).json({ error: 'Hotel not found' });
       }

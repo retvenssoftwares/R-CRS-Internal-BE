@@ -3,7 +3,8 @@ const {ObjectId} = mongoose.Schema;
 
 const employeeSchema = mongoose.Schema({
     employee_id : {
-        type: String,
+        type: mongoose.Types.ObjectId,
+        default: mongoose.Types.ObjectId,
         unique:true
     },
     first_name:{
@@ -16,7 +17,10 @@ const employeeSchema = mongoose.Schema({
     },
     gender:{
         type:String,
-        enum:["MALE", "FEMALE"],
+        enum:[
+            "MALE", 
+            "FEMALE"
+        ],
         required:true
     },
     role:{
@@ -29,7 +33,7 @@ const employeeSchema = mongoose.Schema({
         default:'EMPLOYEE'
     },
     date_of_joining: {
-        type: Date,
+        type: String,
         required : true
     },
     phone_number:{

@@ -6,53 +6,8 @@ const mongoose = require('mongoose');
 
 
 module.exports.create_booking =  async (req, res) => {
-    console.log("request received")
-    const { hotel_r_code,
-            employee_id,
-            arrival_date,
-            departure_date,
-            checkin_time,
-            checkout_time,
-            room_type,
-            rate_plan,
-            rate_type,
-            rate_plan_id,
-            room_type_id,
-            rate_type_id,
-            base_rate,
-            extra_adult_rate,
-            extra_child_rate,
-            adult_number,
-            child_number,
-            child_age,
-            guest_title,
-            guest_first_name,
-            guest_last_name,
-            guest_gender,
-            guest_mobile_number,
-            guest_email,
-            guest_special_request,
-            guest_address,
-            guest_city,
-            guest_state,
-            guest_country,
-            guest_zip_code,
-            guest_fax,
-            guest_device,
-            discount,
-            payment_mode,
-            billing_instructions,
-            payment_id,
-            business_source,
-            market_segment,
-            company_name,
-            company_address,
-            gst_number,
-            special_request,
-            reservation_type,
-            pickup_date,
-            drop_date,
-          } = req.body;
+  
+    const newBooking = new Booking(req.body);
 
           const errorCodesToMatch = [
             "HotelCodeEmpty",
@@ -83,7 +38,7 @@ module.exports.create_booking =  async (req, res) => {
           // Check if the error code matches predefined values
           if (errorCodesToMatch.includes(errorCode)) {
             // Save the JSON response in the database with validation status as failure
-            booking_status = "FailBooking"
+            booking_status = "Fail Booking"
           }
         }
 
@@ -136,18 +91,18 @@ module.exports.create_booking =  async (req, res) => {
         booking.booking_status = booking_status
         booking.employee_id = employee_id
         
-          await booking.save((err, result) => {
-              if (err) {
-                  return res.status(400).json({
-                      error: err
-                  });
-              }
-    
-              res.status(200).json({
-                message:"New booking successfully created",
-                booking: result
-              })
-          })
+        await booking.save((err, result) => {
+            if (err) {
+                return res.status(400).json({
+                    error: err
+                });
+            }
+  
+            res.status(200).json({
+              message:"New booking successfully created",
+              booking: result
+            })
+        })
       } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'API call failed' });

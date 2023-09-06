@@ -62,7 +62,6 @@ module.exports.create_employee =  async (req, res) => {
          error: "Password is required"
        })
      }
-     
      const date_Array = date_of_joining.split("-");
      const month = date_Array[1].padStart(2, '0');
       const day = date_Array[0].padStart(2, '0');
@@ -81,7 +80,7 @@ module.exports.create_employee =  async (req, res) => {
          employee.last_name = last_name,
          employee.employee_id = employee_id,
          employee.role = role,
-         employee.date_of_joining = newDate,
+         employee.date_of_joining = date_of_joining,
          employee.phone_number = phone_number,
          employee.email = email,
          employee.gender = gender,

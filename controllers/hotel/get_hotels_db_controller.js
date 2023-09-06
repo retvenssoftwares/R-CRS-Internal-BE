@@ -14,8 +14,6 @@ module.exports.get_hotel_db = (req, res) => {
          hotel_r_code: hotel.hotel_r_code,
          hotel_name: hotel.hotel_name
      }));
-     res.status(200).json({
-        hotels: hotels
-     });
+     res.status(200).json(hotels);
    });
 }

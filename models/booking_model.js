@@ -9,183 +9,179 @@ const bookingSchema = mongoose.Schema({
     },
     hotel_r_code:{
         type:String,
-        default:null
+        default:""
     },
     employee_id:{
         type:String,
-        default:null
+        default:""
     },
     departure_date:{
         type:String,
-        default:null
+        default:""
     },
     arrival_date:{
         type:String,
-        default:null
+        default:""
     },
     checkin_time:{
         type:String,
-        default:null
+        default:""
     },
     checkout_time:{
         type:String,
-        default:null
+        default:""
     },
-    room_type:{
-        type:String,
-        default:null
-    },
-    rate_plan:{
-        type:String,
-        default:null
-    },
-    rate_type:{
-        type:String,
-        default:null
-    },
-    rate_plan_id:{
-        type:String,
-        default:null
-    },
-    room_type_id:{
-        type:String,
-        default:null
-    },
-    rate_type_id:{
-        type:String,
-        default:null
-    },
-    base_rate:{
-        type:String,
-        default:null
-    },
-    extra_adult_rate:{
-        type:String,
-        default:null
-    },
-    extra_child_rate:{
-        type:String,
-        default:null
-    },
-    adult_number:{
-        type:String,
-        default:null
-    },
-    child_number:{
-        type:String,
-        default:null
-    },
-    child_age:{
-        type:String,
-        default:null
-    },
+    roomTypes: [
+        {
+            room_type:{
+                type:String,
+                default:""
+            },
+            rate_plan:{
+                type:String,
+                default:""
+            },
+            rate_type:{
+                type:String,
+                default:""
+            },
+            rate_plan_id:{
+                type:String,
+                default:""
+            },
+            room_type_id:{
+                type:String,
+                default:""
+            },
+            rate_type_id:{
+                type:String,
+                default:""
+            },
+            base_rate:{
+                type:String,
+                default:""
+            },
+            extra_adult_rate:{
+                type:String,
+                default:""
+            },
+            extra_child_rate:{
+                type:String,
+                default:""
+            },
+            adult_number:{
+                type:String,
+                default:""
+            },
+            child_number:{
+                type:String,
+                default:""
+            },
+            child_age:{
+                type:String,
+                default:""
+            }
+        }
+    ],
     guest_title:{
         type:String,
-        default:null
+        default:""
     },
     guest_first_name:{
         type:String,
-        default:null
+        default:""
     },
     guest_last_name:{
         type:String,
-        default:null
+        default:""
     },
     guest_gender:{
         type:String,
-        default:null
+        default:""
     },
     guest_mobile_number:{
         type:String,
-        default:null
+        default:""
     },
     guest_email:{
         type:String,
-        default:null
+        default:""
     },
     guest_special_request:{
         type:String,
-        default:null
+        default:""
     },
     guest_address:{
         type:String,
-        default:null
+        default:""
     },
     guest_city:{
         type:String,
-        default:null
+        default:""
     },
     guest_state:{
         type:String,
-        default:null
+        default:""
     },
     guest_country:{
         type:String,
-        default:null
+        default:""
     },
     guest_zip_code:{
         type:String,
-        default:null
+        default:""
     },
     guest_fax:{
         type:String,
-        default:null
+        default:""
     },
     guest_device:{
         type:String,
-        default:null
+        default:""
     },
     discount:{
         type:String,
-        default:null
+        default:""
     },
     payment_mode:{
         type:String,
-        default:null
+        default:""
     },
     billing_instructions:{
         type:String,
-        default:null
+        default:""
     },
     payment_id:{
         type:String,
-        default:null
+        default:""
     },
     business_source:{
         type:String,
-        default:null
+        default:""
     },
     market_segment:{
         type:String,
-        default:null
+        default:""
     },
     company_name:{
         type:String,
-        default:null
+        default:""
     },
     company_address:{
         type:String,
-        default:null
+        default:""
     },
     gst_number:{
         type:String,
-        default:null
+        default:""
     },
     special_request:{
         type:String,
-        default:null
+        default:""
     },
     reservation_type:{
         type:String,
-        default:null
-    },
-    pickup_date:{
-        type:String,
-        default:null
-    },
-    drop_date:{
-        type:String,
-        default:null
+        default:""
     },
     booking_status:{
         type: String,
@@ -195,7 +191,27 @@ const bookingSchema = mongoose.Schema({
     made_by:{
         type: String,
         recquired: true
-    }
+    },
+    booking_source: {
+        type:String,
+        default:""
+    },
+    business_source: {
+        type:String,
+        default:""
+    },
+    reservation_type:{
+        type:String,
+        default:""
+    },
+    total_price: {
+        type:String,
+        default:""
+    },
+    room_nights:{
+        type:String,
+        default:""
+    },
 }, {timestamps:true})
 
 module.exports = mongoose.model('Booking', bookingSchema);
