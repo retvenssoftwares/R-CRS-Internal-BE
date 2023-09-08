@@ -1,19 +1,21 @@
 const mongoose = require("mongoose");
 const {ObjectId} = mongoose.Schema;
+const randomstring = require("randomstring")
 
 const employeeSchema = mongoose.Schema({
     employee_id : {
-        type: mongoose.Types.ObjectId,
-        default: mongoose.Types.ObjectId,
+        type: String,
+        default: "",
         unique:true
     },
     first_name:{
         type:String,
+        default :"",
         required:true
     },
     last_name: {
         type:String,
-        default:null
+        default:""
     },
     gender:{
         type:String,

@@ -137,7 +137,9 @@ module.exports.create_booking = async (req, res) => {
 
     const response = await axios.get(
       `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`
+
     );
+    //console.log( `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`)
     console.log(response.data);
 
     // Check if the response contains an error code
