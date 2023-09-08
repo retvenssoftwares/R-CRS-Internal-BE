@@ -8,6 +8,7 @@ require('dotenv').config();
 const employeeRouter = require("./routers/user/employee_router");
 const bookingRouter = require("./routers/booking/booking_router");
 const hotelRouter = require("./routers/hotel/hotel_router");
+const roomDetailsRouter = require("./routers/hotel/add_room_details_router");
 const roomInventoryRouter = require("./routers/hotel/room_inventory_router");
 const roomRateRouter = require("./routers/hotel/room_rate_router");
 const getBooking = require("./routers/booking/get_booking_router");
@@ -37,6 +38,7 @@ app.use("/api", roomInventoryRouter)
 app.use("/api", roomRateRouter)
 app.use("/api", getBooking)
 app.use("/api", getTransaction)
+app.use("/api", roomDetailsRouter)
 app.use("/api", cancelBooking)
 app.use("/api", get_booking_by_email_router)
 app.use("/api", room_availability_router)
