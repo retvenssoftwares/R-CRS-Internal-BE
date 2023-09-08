@@ -175,10 +175,12 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
-    
     reservation_type:{
         type:String,
         default:""
+    },
+    reservation_number: {
+        type: String, default:''
     },
     booking_status:{
         type: String,
@@ -187,7 +189,12 @@ const bookingSchema = mongoose.Schema({
     },
     made_by:{
         type: String,
-        recquired: true
+        required: true,
+        default: ''
+    },
+    hotel_name: {
+        type: String,
+        default:''
     },
     booking_source: {
         type:String,

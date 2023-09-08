@@ -39,8 +39,10 @@ module.exports.create_booking = async (req, res) => {
     company_address,
     gst_number,
     reservation_type,
+    reservation_number,
     made_by,
     booking_source,
+    hotel_name,
     total_price,
     room_nights,
   } = req.body;
@@ -137,7 +139,7 @@ module.exports.create_booking = async (req, res) => {
       `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`
 
     );
-    console.log( `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`)
+    //console.log( `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`)
     console.log(response.data);
 
     // Check if the response contains an error code
@@ -234,10 +236,11 @@ module.exports.create_booking = async (req, res) => {
       company_name,
       company_address,
       gst_number,
-      // special_request,
       reservation_type,
+      reservation_number,
       //booking_status,
       made_by,
+      hotel_name,
       booking_source,
       total_price,
       room_nights,
