@@ -1,8 +1,8 @@
 const Employee = require("../../models/employee_model");
 const { errorHandler } = require("../../utils/dbErrorHandler");
 const formidable = require('formidable');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
+// const bcrypt = require('bcrypt');
 const fs = require('fs');
 
 
@@ -101,45 +101,45 @@ module.exports.create_employee =  async (req, res) => {
 }
 
 
-module.exports.onboard_employee = (req, res) => {
-    const { employee_id } = req.params;
-    Employee.findById({ _id:employee_id })
-     .exec((err, employee) => {
-       if(err){
-         return res.status(400).json({
-           error: err
-         })
-       }
-    const { first_name, email, _id, employee_id } = employee;
-    const token = jwt.sign({ first_name, _id, email }, process.env.JWT_INVITATION, { expiresIn: '1d' });
+// module.exports.onboard_employee = (req, res) => {
+//     const { employee_id } = req.params;
+//     Employee.findById({ _id:employee_id })
+//      .exec((err, employee) => {
+//        if(err){
+//          return res.status(400).json({
+//            error: err
+//          })
+//        }
+//     const { first_name, email, _id, employee_id } = employee;
+//     const token = jwt.sign({ first_name, _id, email }, process.env.JWT_INVITATION, { expiresIn: '1d' });
 
-    let html = `<div style="padding-left:20px; padding-right:20px">
-                 <h1 style="text-align:center">Welcome you on board!</h1>
-                 <div style="text-align:left;">Hi ${first_name},</div>
-                 <p>
-                  Congratulations on being part of the team! The whole company welcomes you and we look forward to a successful journey with you! Welcome aboard!
-                 </p>
-                 <p>Please click on the following button to activate your acccount:</p>
-                 <div style= "text-align:center; padding:20px 20px 20px 20px;" >
-                   <a href=${process.env.CLIENT_URL}/auth/onboard/${token}>
-                     <button style="padding:10px 30px; background:linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%); color:white; font-weight:700; border:0px; font-size:20px">
-                       Accept invitation
-                     </button>
-                   </a>
-                 </div>
-                 <hr />
-                 <p>This email may contain sensetive information</p>
-               </div>`
+//     let html = `<div style="padding-left:20px; padding-right:20px">
+//                  <h1 style="text-align:center">Welcome you on board!</h1>
+//                  <div style="text-align:left;">Hi ${first_name},</div>
+//                  <p>
+//                   Congratulations on being part of the team! The whole company welcomes you and we look forward to a successful journey with you! Welcome aboard!
+//                  </p>
+//                  <p>Please click on the following button to activate your acccount:</p>
+//                  <div style= "text-align:center; padding:20px 20px 20px 20px;" >
+//                    <a href=${process.env.CLIENT_URL}/auth/onboard/${token}>
+//                      <button style="padding:10px 30px; background:linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%); color:white; font-weight:700; border:0px; font-size:20px">
+//                        Accept invitation
+//                      </button>
+//                    </a>
+//                  </div>
+//                  <hr />
+//                  <p>This email may contain sensetive information</p>
+//                </div>`
 
-    send_email(email, "Welcome you onboard", html)
-    .then(() => {
-      return res.status(200).json({
-        message:"Invitation sent successfully."
-      })
-    })
-    .catch(console.error)
-     })
-}
+//     send_email(email, "Welcome you onboard", html)
+//     .then(() => {
+//       return res.status(200).json({
+//         message:"Invitation sent successfully."
+//       })
+//     })
+//     .catch(console.error)
+//      })
+// }
 
 module.exports.accept_onboard_invitation = (req, res) => {
     const { token, password } = req.body;

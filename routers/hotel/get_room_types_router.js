@@ -5,4 +5,4 @@ const { get_room_type  } = require("../../controllers/hotel/get_room_type_contro
 
 router.get("/get/roomType",  get_room_type);
 
-module.exports = router;
+module.exports = router;    

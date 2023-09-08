@@ -2,9 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const xml2js = require('xml2js');
 const mongoose = require('mongoose');
-const Hotel = require("../models/hotel_model")
+const Hotel = require("../../models/hotel_model")
 
-module.exports.retreive_room_information =  async (req, res) => {
+module.exports =  async (req, res) => {
 
     const hotel_r_code = req.query.hotel_r_code;
   

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { create_employee,
-        onboard_employee,
+       // onboard_employee,
         accept_onboard_invitation,
         update_employee,
         all_employee,
@@ -10,7 +10,7 @@ const { create_employee,
 
 //ADMIN
 router.post("/create/employee",  create_employee);
-router.post("/onboard/employee/:employee_id", onboard_employee);
+// router.post("/onboard/employee/:employee_id", onboard_employee);
 router.get("/all/employees", all_employee);
 
 //EMPLOYEE
