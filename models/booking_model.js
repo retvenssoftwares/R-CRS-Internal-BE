@@ -175,17 +175,14 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
-    special_request:{
-        type:String,
-        default:""
-    },
+    
     reservation_type:{
         type:String,
         default:""
     },
     booking_status:{
         type: String,
-        enum:["PendingBooking", "FailBooking", "ConfirmBooking"],
+        enum:["PendingBooking", "FailBooking", "ConfirmBooking", "CancelledBooking"],
         default: "FailBooking"
     },
     made_by:{
