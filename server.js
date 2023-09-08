@@ -25,6 +25,7 @@ const sendPaymentLinkRouter = require("./routers/payment/send_payment_link_route
 const getPaymentLinkByOrderIDRouter = require("./routers/payment/get_payment_links_by_orderID_router");
 const getroomInfo = require("./routers/hotel/room_info_router")
 const bookingdetails = require('./routers/user/get_details_of_booking_router')
+const top_five_booking = require('./routers/booking/get_top_5_employee_booking_router')
 
 app.use(cors({origin: "http://localhost:3000"}))
 app.use(morgan('dev'));
@@ -51,6 +52,7 @@ app.use("/api", sendPaymentLinkRouter)
 app.use("/api", getPaymentLinkByOrderIDRouter)
 app.use("/api",getroomInfo)
 app.use('/api',bookingdetails)
+app.use('/api',top_five_booking)
 
 mongoose
     .connect(process.env.DATABASE, {

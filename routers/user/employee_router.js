@@ -12,7 +12,7 @@ const { create_employee,
 router.post("/create/employee",  create_employee);
 // router.post("/onboard/employee/:employee_id", onboard_employee);
 router.get("/all/employees", all_employee);
-
+        
 //EMPLOYEE
 router.post("/accept/onboard/invitation", accept_onboard_invitation);
 router.patch("/update/employee/:_id", update_employee);
