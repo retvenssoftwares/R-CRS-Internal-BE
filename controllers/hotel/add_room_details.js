@@ -15,6 +15,11 @@ const upload_room_details = async (req, res) => {
   ])(req, res, async (err) => {
     try {
 
+      const hotel_id = req.params.hotel_id
+      const findHotel = await Hotel.findOne({ hotel_id: hotel_id })
+      if (!findHotel) {
+        return res.status(404).json({ error: 'Hotel not found' });
+      }
       // Upload hotelImages to DigitalOcean Spaces
       let room_details = [];
       let room_type_pictures = []
@@ -62,13 +67,44 @@ const upload_room_details = async (req, res) => {
             image: imageUrl,
             display_status: '1'
           };
-          hotel_images.push(imageDetails);
+          findHotel.hotel_images.push(imageDetails);
         }
       }
 
+      // Upload hotellogo to DigitalOcean Spaces
+      let hotel_logo_url = '';
+      if (req.files['hotel_logo']) {
+        const hotel_logo_pic = req.files['hotel_logo'][0];
+        const hotel_logo_pic_params = {
+          Bucket: 'rown-space-bucket/hotel_logos',
+          Key: hotel_logo_pic.originalname,
+          Body: hotel_logo_pic.buffer,
+          ContentType: hotel_logo_pic.mimetype,
+          ACL: 'public-read'
+        };
+        await s3.upload(hotel_logo_pic_params).promise();
+        hotel_logo_url = `https://rown-space-bucket.nyc3.digitaloceanspaces.com/hotel_logos/${hotel_logo_pic.originalname}`;
+        await Hotel.updateOne({hotel_id: hotel_id}, {$set:{hotel_logo:hotel_logo_url}});
+      }
+
+      let hotel_cover_pic_url = ''
+      // Upload hotelCoverpic to DigitalOcean Spaces
+      if (req.files['hotel_cover_photo']) {
+        const hotel_cover_pic = req.files['hotel_cover_photo'][0];
+        const hotel_cover_pic_params = {
+          Bucket: 'rown-space-bucket/hotel_cover_pics',
+          Key: hotel_cover_pic.originalname,
+          Body: hotel_cover_pic.buffer,
+          ContentType: hotel_cover_pic.mimetype,
+          ACL: 'public-read'
+        };
+        await s3.upload(hotel_cover_pic_params).promise();
+        hotel_cover_pic_url = `https://rown-space-bucket.nyc3.digitaloceanspaces.com/hotel_cover_pics/${hotel_cover_pic.originalname}`;
+        await Hotel.updateOne({hotel_id: hotel_id}, {$set:{hotel_cover_photo:hotel_cover_pic_url}});
+      }
       // console.log(hotel_images)
 
-      const hotel_id = req.params.hotel_id
+      
       // console.log("request received")
       const { hotel_r_code,
         hotel_auth_code,
@@ -78,10 +114,7 @@ const upload_room_details = async (req, res) => {
         room_type_name
       } = req.body;
 
-      const findHotel = await Hotel.findOne({ hotel_id: hotel_id })
-      if (!findHotel) {
-        return res.status(404).json({ error: 'Hotel not found' });
-      }
+      
 
       // if (!hotel_r_code) {
       //   return res.status(400).json({
@@ -113,12 +146,10 @@ const upload_room_details = async (req, res) => {
         room_type_name,
         room_type_pictures: room_type_pictures
       }
-      const hotel_images_object = {
-        
-      }
+     
       // Find the room_details array and append room_id_and_name to it
       findHotel.room_details.push(room_id_and_name);
-      findHotel.hotel_images.push(hotel_images);
+      // findHotel.hotel_images.push(hotel_images);
 
       // Save the updated hotel record
       await findHotel.save((err, result) => {

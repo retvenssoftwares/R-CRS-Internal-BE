@@ -27,6 +27,7 @@ const getPaymentLinkByOrderIDRouter = require("./routers/payment/get_payment_lin
 const getroomInfo = require("./routers/hotel/room_info_router")
 const bookingdetails = require('./routers/user/get_details_of_booking_router')
 const top_five_booking = require('./routers/booking/get_top_5_employee_booking_router')
+const get_all_hotels = require('./routers/hotel/get_all_hotels')
 
 
 //location
@@ -63,6 +64,7 @@ app.use("/api", getPaymentLinkByOrderIDRouter)
 app.use("/api",getroomInfo)
 app.use('/api',bookingdetails)
 app.use('/api',top_five_booking)
+app.use('/api', get_all_hotels)
 
 //location
 app.use('/api',location)

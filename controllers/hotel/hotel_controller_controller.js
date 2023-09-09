@@ -137,19 +137,7 @@ const upload_hotel = async (req, res) => {
         })
       }
 
-      // const hotel = new Hotel();
-      // hotel.hotel_r_code = hotel_r_code
-      // hotel.hotel_auth_code = hotel_auth_code
-      // hotel.hotel_ezee_code = hotel_ezee_code
-      // hotel.hotel_name = hotel_name
-
-      // Create and save the property record
-      const room_id_and_name = {
-        room_type_id,
-        room_type_name,
-        room_type_pictures: room_type_pictures
-      }
-      room_details.push(room_id_and_name)
+     
       const add_hotel = new Hotel({
         hotel_r_code: hotel_r_code,
         hotel_auth_code: hotel_auth_code,
@@ -161,7 +149,6 @@ const upload_hotel = async (req, res) => {
         hotel_city,
         hotel_state,
         hotel_country,
-        room_details: room_details,
         hotel_name: hotel_name,
         hotel_cover_photo: hotel_cover_pic_url,
         room_details: room_details,
