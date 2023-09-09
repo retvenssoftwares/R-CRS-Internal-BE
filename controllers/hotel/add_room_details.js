@@ -16,10 +16,35 @@ const upload_room_details = async (req, res) => {
     try {
 
       const hotel_id = req.params.hotel_id
+      const roomid = req.params.roomid
       const findHotel = await Hotel.findOne({ hotel_id: hotel_id })
       if (!findHotel) {
         return res.status(404).json({ error: 'Hotel not found' });
       }
+
+
+   
+      
+      // Find the specific room_details entry within the hotel's room_details array based on room_type_id
+   
+      
+      
+
+
+  
+      
+      // try {
+      //   // Save the updated document back to the database
+      //   await findHotel.save();
+      
+      //   return res.status(200).json({ message: 'Rate type and rate plan added successfully' });
+      // } catch (error) {
+      //   // Handle errors here
+      //     res.status(500).json({ message: "Internal Server Error" });
+
+      // }
+      
+
       // Upload hotelImages to DigitalOcean Spaces
       let room_details = [];
       let room_type_pictures = []
@@ -130,6 +155,61 @@ const upload_room_details = async (req, res) => {
       // findHotel.hotel_images.push(hotel_images);
 
       // Save the updated hotel record
+
+
+
+
+          // const hotel_id = req.params.hotel_id;
+      // const roomid = req.params.roomid;
+      // const findHotel = await Hotel.findOne({ hotel_id: hotel_id });
+
+
+      
+      if (!findHotel) {
+        return res.status(404).json({ error: 'Hotel not found' });
+      }
+      
+      // Find the specific room_details entry within the hotel's room_details array based on room_type_id
+      const roomDetailToUpdate = findHotel.room_details.find((roomDetail) => roomDetail.room_type_id === roomid);
+      
+      if (!roomDetailToUpdate) {
+        return res.status(404).json({ error: 'Room not found' });
+      }
+      
+      const requestData = req.body;
+      
+      const roomtype = requestData.roomtype;
+      const rateplan = requestData.rateplan;
+      
+      // Iterate over the properties of the roomtype object and push them to the rate_type array
+      for (const key in roomtype) {
+        if (roomtype.hasOwnProperty(key)) {
+          const rateTypeObj = roomtype[key];
+          const rateTypeToAdd = {
+            rate_type_id: rateTypeObj.rate_type_id,
+            rate_type_name: rateTypeObj.rate_type_name,
+          };
+          roomDetailToUpdate.rate_type.push(rateTypeToAdd);
+        }
+      }
+      
+      // Similarly, iterate over the properties of the rateplan object and push them to the rate_plan array
+      for (const key in rateplan) {
+        if (rateplan.hasOwnProperty(key)) {
+          const ratePlanObj = rateplan[key];
+          const ratePlanToAdd = {
+            rate_plan_id: ratePlanObj.rate_plan_id,
+            rate_plan_name: ratePlanObj.rate_plan_name,
+          };
+          roomDetailToUpdate.rate_plan.push(ratePlanToAdd);
+        }
+      }
+      
+      await roomDetailToUpdate.save();
+
+
+
+
       await findHotel.save((err, result) => {
         if (err) {
           return res.status(400).json({
@@ -145,7 +225,8 @@ const upload_room_details = async (req, res) => {
     }
     catch (err) {
       console.log(err)
-      return res.status(500).json({ message: "Internal Server Error" })
+      return res.status(500).json({ message: "Internal Server Error" });
+
     }
   })
 }

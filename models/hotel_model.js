@@ -28,7 +28,7 @@ const hotelSchema = mongoose.Schema({
             rate_type_name: { type: String, default: '' }
         }],
         rate_plan: [{
-            rate_plan_name: { type: String, default: '' },
+            rate_plan_id: { type: String, default: '' },
             rate_plan_name: { type: String, default: '' }
         }]
     }],
