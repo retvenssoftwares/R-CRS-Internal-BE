@@ -18,34 +18,35 @@ const upload_hotel = async (req, res) => {
         hotel_name,
         hotel_address_line_1,
         hotel_address_line_2,
+        pms_type,
         hotel_city,
         hotel_state,
         hotel_country,
       } = req.body;
 
 
-      if (!hotel_r_code) {
-        return res.status(400).json({
-          error: "Retvens hotel code is required"
-        })
-      }
+      // if (!hotel_r_code) {
+      //   return res.status(400).json({
+      //     error: "Retvens hotel code is required"
+      //   })
+      // }
 
-      if (!hotel_auth_code) {
-        return res.status(400).json({
-          error: "Hotel Ezee Auth Code is required"
-        })
-      }
+      // if (!hotel_auth_code) {
+      //   return res.status(400).json({
+      //     error: "Hotel Ezee Auth Code is required"
+      //   })
+      // }
 
-      if (!hotel_ezee_code) {
-        return res.status(400).json({
-          error: "Hotel Ezee Code is required"
-        })
-      }
-      if (!hotel_name) {
-        return res.status(400).json({
-          error: "Hotel Name is required"
-        })
-      }
+      // if (!hotel_ezee_code) {
+      //   return res.status(400).json({
+      //     error: "Hotel Ezee Code is required"
+      //   })
+      // }
+      // if (!hotel_name) {
+      //   return res.status(400).json({
+      //     error: "Hotel Name is required"
+      //   })
+      // }
 
      
       const add_hotel = new Hotel({
@@ -56,6 +57,7 @@ const upload_hotel = async (req, res) => {
         hotel_address_line_1,
         hotel_address_line_2,
         hotel_city,
+        pms_type,
         hotel_state,
         hotel_country,
         hotel_name: hotel_name

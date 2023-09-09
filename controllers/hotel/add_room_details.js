@@ -10,7 +10,7 @@ const upload_room_details = async (req, res) => {
   upload.fields([
     { name: 'hotel_cover_photo', maxCount: 1 },
     { name: 'hotel_images', maxCount: 7 },
-    { name: 'room_type_images', maxCount: 4 },
+    { name: 'room_type_images' },
     { name: 'hotel_logo', maxCount: 1 }
   ])(req, res, async (err) => {
     try {
@@ -46,7 +46,7 @@ const upload_room_details = async (req, res) => {
       
 
       // Upload hotelImages to DigitalOcean Spaces
-      let room_details = [];
+      // let room_details = [];
       let room_type_pictures = []
       if (req.files['room_type_images']) {
         for (const room_type_image of req.files['room_type_images']) {
@@ -109,7 +109,7 @@ const upload_room_details = async (req, res) => {
         };
         await s3.upload(hotel_logo_pic_params).promise();
         hotel_logo_url = `https://rown-space-bucket.nyc3.digitaloceanspaces.com/hotel_logos/${hotel_logo_pic.originalname}`;
-        await Hotel.updateOne({hotel_id: hotel_id}, {$set:{hotel_logo:hotel_logo_url}});
+        await Hotel.updateOne({ hotel_id: hotel_id }, { $set: { hotel_logo: hotel_logo_url } });
       }
 
       let hotel_cover_pic_url = ''
@@ -125,32 +125,51 @@ const upload_room_details = async (req, res) => {
         };
         await s3.upload(hotel_cover_pic_params).promise();
         hotel_cover_pic_url = `https://rown-space-bucket.nyc3.digitaloceanspaces.com/hotel_cover_pics/${hotel_cover_pic.originalname}`;
-        await Hotel.updateOne({hotel_id: hotel_id}, {$set:{hotel_cover_photo:hotel_cover_pic_url}});
+        await Hotel.updateOne({ hotel_id: hotel_id }, { $set: { hotel_cover_photo: hotel_cover_pic_url } });
       }
-    
-      
+
+
       // console.log("request received")
-      const { hotel_r_code,
-        hotel_auth_code,
-        hotel_ezee_code,
-        hotel_name,
+      const {
+        room_details,
+        rate_type_id,
         room_type_id,
-        room_type_name
+        room_type_name,
+        rate_type_name,
+        rate_plan_id,
+        rate_plan_name,
+        numberofrates,
+        numberofrateplans,
       } = req.body;
 
-      
+      // Create an array to store rate_type objects
+      const rateTypes = [];
+      for (let i = 0; i < numberofrates; i++) {
+        const rate_type_id = req.body[`rate_type_id_${i}`]; // Use dynamic key based on i
+        const rate_type_name = req.body[`rate_type_name_${i}`]; // Use dynamic key based on i
+        rateTypes.push({ rate_type_id, rate_type_name });
+      }
 
-      
-
+      // Create an array to store rate_plan objects
+      const ratePlans = [];
+      for (let i = 0; i < numberofrateplans; i++) {
+        const rate_plan_id = req.body[`rate_plan_id_${i}`]; // Use dynamic key based on i
+        const rate_plan_name = req.body[`rate_plan_name_${i}`]; // This is common for all rate plans
+        ratePlans.push({ rate_plan_id, rate_plan_name });
+      }
 
       // Create and save the property record
       const room_id_and_name = {
         room_type_id,
         room_type_name,
-        room_type_pictures: room_type_pictures
+        room_type_pictures: room_type_pictures,
+        rate_type: rateTypes,
+        rate_plan: ratePlans
       }
-     
+
+
       // Find the room_details array and append room_id_and_name to it
+      // findHotel.room_details.rate_type.push(rate_type);
       findHotel.room_details.push(room_id_and_name);
       // findHotel.hotel_images.push(hotel_images);
 
