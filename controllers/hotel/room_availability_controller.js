@@ -11,6 +11,7 @@ module.exports.room_availability =  async (req, res) => {
     const check_out_date = req.query.check_out_date;
 
     try {
+      
       // Find the hotel details based on the provided hotel name
       const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
 

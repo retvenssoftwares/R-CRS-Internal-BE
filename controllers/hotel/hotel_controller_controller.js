@@ -1,3 +1,4 @@
+require('dotenv').config()
 const AWS = require('aws-sdk');
 const s3 = require('../../utils/url');
 const multer = require('multer');
@@ -6,8 +7,6 @@ const Hotel = require("../../models/hotel_model")
 const randomstring = require('randomstring');
 
 const upload_hotel = async (req, res) => {
-
-
 
   upload.fields([
     { name: 'hotel_cover_photo', maxCount: 1 },

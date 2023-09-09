@@ -28,6 +28,14 @@ const getroomInfo = require("./routers/hotel/room_info_router")
 const bookingdetails = require('./routers/user/get_details_of_booking_router')
 const top_five_booking = require('./routers/booking/get_top_5_employee_booking_router')
 
+
+//location
+const location = require('./routers/location/getLocationrouter');
+const countries = require('./routers/location/getAllcountryrouter');
+const state = require('./routers/location/getAllstatesrouter');
+const cities = require('./routers/location/getAllcitiesrouter');
+const fetchcoutries = require('./routers/location/fetchAllCountryRouter');
+
 app.use(cors({origin: "http://localhost:3000"}))
 app.use(morgan('dev'));
 app.use(bodyParser.json());
@@ -55,6 +63,13 @@ app.use("/api", getPaymentLinkByOrderIDRouter)
 app.use("/api",getroomInfo)
 app.use('/api',bookingdetails)
 app.use('/api',top_five_booking)
+
+//location
+app.use('/api',location)
+app.use('/api',countries)
+app.use('/api',state)
+app.use('/api',cities)
+app.use('/api',fetchcoutries)
 
 mongoose
     .connect(process.env.DATABASE, {
