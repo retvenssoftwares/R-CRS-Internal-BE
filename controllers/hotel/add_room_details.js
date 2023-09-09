@@ -102,8 +102,7 @@ const upload_room_details = async (req, res) => {
         hotel_cover_pic_url = `https://rown-space-bucket.nyc3.digitaloceanspaces.com/hotel_cover_pics/${hotel_cover_pic.originalname}`;
         await Hotel.updateOne({hotel_id: hotel_id}, {$set:{hotel_cover_photo:hotel_cover_pic_url}});
       }
-      // console.log(hotel_images)
-
+    
       
       // console.log("request received")
       const { hotel_r_code,
@@ -116,28 +115,7 @@ const upload_room_details = async (req, res) => {
 
       
 
-      // if (!hotel_r_code) {
-      //   return res.status(400).json({
-      //     error: "Retvens hotel code is required"
-      //   })
-      // }
-
-      // if (!hotel_auth_code) {
-      //   return res.status(400).json({
-      //     error: "Hotel Ezee Auth Code is required"
-      //   })
-      // }
-
-      // if (!hotel_ezee_code) {
-      //   return res.status(400).json({
-      //     error: "Hotel Ezee Code is required"
-      //   })
-      // }
-      // if (!hotel_name) {
-      //   return res.status(400).json({
-      //     error: "Hotel Ezee Code is required"
-      //   })
-      // }
+      
 
 
       // Create and save the property record
@@ -161,7 +139,7 @@ const upload_room_details = async (req, res) => {
 
         res.status(200).json({
           message: "Hotel successfully updated",
-          booking: result
+          hotel_id: findHotel.hotel_id
         })
       })
     }
