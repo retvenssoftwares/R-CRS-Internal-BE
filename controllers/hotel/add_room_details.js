@@ -189,42 +189,13 @@ const upload_room_details = async (req, res) => {
       }
       
       // Find the specific room_details entry within the hotel's room_details array based on room_type_id
-      const roomDetailToUpdate = findHotel.room_details.find((roomDetail) => roomDetail.room_type_id === roomid);
-      
-      if (!roomDetailToUpdate) {
-        return res.status(404).json({ error: 'Room not found' });
-      }
-      
-      const requestData = req.body;
-      
-      const roomtype = requestData.roomtype;
-      const rateplan = requestData.rateplan;
+    
       
       // Iterate over the properties of the roomtype object and push them to the rate_type array
-      for (const key in roomtype) {
-        if (roomtype.hasOwnProperty(key)) {
-          const rateTypeObj = roomtype[key];
-          const rateTypeToAdd = {
-            rate_type_id: rateTypeObj.rate_type_id,
-            rate_type_name: rateTypeObj.rate_type_name,
-          };
-          roomDetailToUpdate.rate_type.push(rateTypeToAdd);
-        }
-      }
+    
       
       // Similarly, iterate over the properties of the rateplan object and push them to the rate_plan array
-      for (const key in rateplan) {
-        if (rateplan.hasOwnProperty(key)) {
-          const ratePlanObj = rateplan[key];
-          const ratePlanToAdd = {
-            rate_plan_id: ratePlanObj.rate_plan_id,
-            rate_plan_name: ratePlanObj.rate_plan_name,
-          };
-          roomDetailToUpdate.rate_plan.push(ratePlanToAdd);
-        }
-      }
-      
-      await roomDetailToUpdate.save();
+   
 
 
 
