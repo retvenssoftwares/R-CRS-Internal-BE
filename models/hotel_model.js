@@ -22,8 +22,31 @@ const hotelSchema = mongoose.Schema({
     room_details: [{
         room_type_id: { type: String, default: '' },
         room_type_name: { type: String, default: '' },
-        room_type_pictures: [{ picture: { type: String, default: '' }, display_status: {type: String, default: '1'}, picture_id: {type: String, default: ''} }]
+        room_type_pictures: [{ picture: { type: String, default: '' }, display_status: { type: String, default: '1' }, picture_id: { type: String, default: '' } }],
+        rate_type: [{
+            rate_type_id: { type: String, default: '' },
+            rate_type_name: { type: String, default: '' }
+        }],
+        rate_plan: [{
+            rate_plan_name: { type: String, default: '' },
+            rate_plan_name: { type: String, default: '' }
+        }]
     }],
+    hotel_address_line_1: {
+        type: String, default: ''
+    },
+    hotel_address_line_2: {
+        type: String, default: ''
+    },
+    hotel_city: {
+        type: String, default: ''
+    },
+    hotel_state: {
+        type: String, default: ''
+    },
+    hotel_country: {
+        type: String, default: ''
+    },
     hotel_name: {
         type: String,
         default: ''
@@ -33,9 +56,9 @@ const hotelSchema = mongoose.Schema({
         default: ''
     },
     hotel_images: [{
-        image_id: {type: String, default: ''},
+        image_id: { type: String, default: '' },
         image: { type: String, default: '' },
-        display_status: { type: String, default: '1'}
+        display_status: { type: String, default: '1' }
     }],
     hotel_logo: { type: String, default: '' },
     hotel_cover_photo: { type: String, default: '' }

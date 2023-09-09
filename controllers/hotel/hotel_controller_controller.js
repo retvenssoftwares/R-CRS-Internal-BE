@@ -105,6 +105,11 @@ const upload_hotel = async (req, res) => {
         hotel_ezee_code,
         hotel_description,
         hotel_name,
+        hotel_address_line_1,
+        hotel_address_line_2,
+        hotel_city,
+        hotel_state,
+        hotel_country,
         room_type_id,
         room_type_name
       } = req.body;
@@ -152,6 +157,11 @@ const upload_hotel = async (req, res) => {
         hotel_ezee_code: hotel_ezee_code,
         hotel_description: hotel_description,
         hotel_images: hotel_images,
+        hotel_address_line_1,
+        hotel_address_line_2,
+        hotel_city,
+        hotel_state,
+        hotel_country,
         room_details: room_details,
         hotel_name: hotel_name,
         hotel_cover_photo: hotel_cover_pic_url,
@@ -172,7 +182,7 @@ const upload_hotel = async (req, res) => {
 
         res.status(200).json({
           message: "New Hotel successfully added",
-          booking: result
+          hotel_id: added_hotel.hotel_id
         })
       })
     }
