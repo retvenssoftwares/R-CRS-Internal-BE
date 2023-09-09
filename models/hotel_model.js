@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const randomstring = require('randomstring')
 const { ObjectId } = mongoose.Schema;
 
 const hotelSchema = mongoose.Schema({
@@ -9,7 +10,23 @@ const hotelSchema = mongoose.Schema({
     },
     hotel_r_code: {
         type: String,
+        default: randomstring.generate(),
         required: true
+    },
+    djubo_query_key: {
+        type: String,
+        default: '',
+        required: false
+    },
+    axisrooms: {type: String, default: ''},
+    djubo_availablility_id: {
+        type: String,
+        default: '',
+        required: false
+    },
+    pms_type: {
+        type: String,
+        default: ''
     },
     hotel_auth_code: {
         type: String,
@@ -28,7 +45,7 @@ const hotelSchema = mongoose.Schema({
             rate_type_name: { type: String, default: '' }
         }],
         rate_plan: [{
-            rate_plan_name: { type: String, default: '' },
+            rate_plan_id: { type: String, default: '' },
             rate_plan_name: { type: String, default: '' }
         }]
     }],
