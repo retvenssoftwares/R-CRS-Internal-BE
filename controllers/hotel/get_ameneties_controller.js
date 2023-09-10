@@ -6,7 +6,7 @@ const Hotel = require("../../models/hotel_model")
 
 module.exports.get_amenities =  async (req, res) => {
 
-    const hotel_r_code = req.query.hotel_r_code;
+    const hotel_r_code = req.query.hotel_r_code;  
 
     try {
       // Find the hotel details based on the provided hotel name

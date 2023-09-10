@@ -17,11 +17,12 @@ module.exports.get_booking_byEmail =  async (req, res) => {
         return res.status(400).json({ error: 'Hotel not found' });
       }
   
-  console.log("making request to ezee")
+  //console.log("making request to ezee")
     // Make a request to another API using the JSON request body
     const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=BookingList&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&EmailId=${email_id}`);
 
     // Return the JSON response from the external API
+    // console.log(response)
     res.json(response.data);
   } catch (error) {
     console.error(error);

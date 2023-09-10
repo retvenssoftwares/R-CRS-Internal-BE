@@ -30,6 +30,7 @@ const top_five_booking = require('./routers/booking/get_top_5_employee_booking_r
 const get_all_hotels = require('./routers/hotel/get_all_hotels')
 const get_new_hotels = require('./routers/hotel/get_newly_added_hotels_router')
 const get_hotel_by_id = require('./routers/hotel/get_hotel_by_id_router')
+const top_hotel = require('./routers/hotel/top_eight_hotel_booking_router')
 
 
 //location
@@ -69,6 +70,7 @@ app.use('/api',top_five_booking)
 app.use('/api', get_all_hotels)
 app.use('/api', get_hotel_by_id)
 app.use('/api', get_new_hotels)
+app.use('/api',top_hotel)
 
 //location
 app.use('/api',location)

@@ -2,7 +2,8 @@ const Booking = require("../../models/booking_model")
 
 
 module.exports.get_booking_db = (req, res) => {
-    Booking.find()
+    const data = Booking.find()
+   
      .exec((err, result) => {
        if(err){
          return res.status(400).json({
