@@ -2,7 +2,7 @@ const Hotel = require("../../models/hotel_model");
 
 module.exports.get_hotel_by_id = (req, res) => {
   Hotel.findOne({ hotel_id: req.params.hotel_id }) // Use findOne instead of find
-    .select('hotel_r_code hotel_name hotel_id hotel_logo hotel_cover_photo hotel_country hotel_images room_details')
+    .select('hotel_r_code hotel_name hotel_id hotel_logo hotel_cover_photo hotel_country hotel_images room_details hotel_address_line_1 hotel_address_line_2')
     .exec((err, result) => {
       if (err) {
         return res.status(400).json({
