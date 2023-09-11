@@ -5,6 +5,7 @@ const multer = require('multer');
 const upload = multer();
 const Hotel = require("../../models/hotel_model")
 const randomstring = require('randomstring');
+const dateObject = new Date();
 
 const upload_hotel = async (req, res) => {
 
@@ -12,7 +13,7 @@ const upload_hotel = async (req, res) => {
       
       // console.log("request received")
       const { hotel_r_code,
-        hotel_auth_code,
+        hotel_ezee_auth_code,
         hotel_ezee_code,
         hotel_description,
         hotel_name,
@@ -51,7 +52,7 @@ const upload_hotel = async (req, res) => {
      
       const add_hotel = new Hotel({
         hotel_r_code: hotel_r_code,
-        hotel_auth_code: hotel_auth_code,
+        hotel_ezee_auth_code: hotel_ezee_auth_code,
         hotel_ezee_code: hotel_ezee_code,
         hotel_description: hotel_description,
         hotel_address_line_1,
@@ -59,6 +60,7 @@ const upload_hotel = async (req, res) => {
         hotel_city,
         pms_type,
         hotel_state,
+        createdAt: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
         hotel_country,
         hotel_name: hotel_name
       });

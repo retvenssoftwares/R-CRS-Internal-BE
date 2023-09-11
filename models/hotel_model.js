@@ -28,7 +28,7 @@ const hotelSchema = mongoose.Schema({
         type: String,
         default: ''
     },
-    hotel_auth_code: {
+    hotel_ezee_auth_code: {
         type: String,
         default: ''
     },
@@ -78,7 +78,10 @@ const hotelSchema = mongoose.Schema({
         display_status: { type: String, default: '1' }
     }],
     hotel_logo: { type: String, default: '' },
-    hotel_cover_photo: { type: String, default: '' }
-}, { timestamps: true });
+    hotel_cover_photo: { type: String, default: '' },
+    createdAt: {type: String, default: ''},
+    updatedAt: {type: String, default: ''}
+}
+);
 
 module.exports = mongoose.model('Hotel', hotelSchema);
