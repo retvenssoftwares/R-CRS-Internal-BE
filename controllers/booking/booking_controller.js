@@ -1,5 +1,6 @@
 const Booking = require("../../models/booking_model");
 const Hotel = require("../../models/hotel_model");
+const emp = require('../../models/employee_model')
 const axios = require("axios");
 const xml2js = require("xml2js");
 const mongoose = require("mongoose");
@@ -127,6 +128,8 @@ module.exports.create_booking = async (req, res) => {
   const ezee = JSON.stringify(data);
   console.log(ezee);
 
+  const emp_name = await emp.findOne({employee_id}) 
+
   try {
     // Find the hotel details based on the provided hotel name
     const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
@@ -243,6 +246,7 @@ module.exports.create_booking = async (req, res) => {
       hotel_name,
       booking_source,
       total_price,
+      employee_name : emp_name.employee_name,
       room_nights,
     });
 
