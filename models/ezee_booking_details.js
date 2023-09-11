@@ -19,12 +19,12 @@ const roomSchema = new mongoose.Schema({
 
 const dataSchema = new mongoose.Schema({
 
-  Room_Details: {
-    Room_1: {
+ 
+    Room: [{
       type: roomSchema,
       required: false,
-    },
-  },
+    }],
+  
   check_in_date: { type: String, required: false },
   check_out_date: { type: String, required: false },
   Booking_Payment_Mode: { type: String, required: false },
