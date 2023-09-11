@@ -18,7 +18,7 @@ const hotelSchema = mongoose.Schema({
         default: '',
         required: false
     },
-    axisrooms: {type: String, default: ''},
+    axis_rooms_property_id: {type: String, default: ''},
     djubo_availablility_id: {
         type: String,
         default: '',
