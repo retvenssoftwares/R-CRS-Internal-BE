@@ -18,7 +18,7 @@ module.exports.get_hotel_by_id = async (req, res) => {
     const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=RoomList&HotelCode=${data.hotel_ezee_code}&APIKey=${data.hotel_ezee_auth_code}&check_in_date=${check_in_date}&check_out_date=${check_out_date}`);
 
     //const { min_ava_rooms } = response.data;
-    console.log(response.data.min_ava_rooms)
+    // console.log(response.data)
 
     res.status(200).json({
       hotel_r_code: data.hotel_r_code,
