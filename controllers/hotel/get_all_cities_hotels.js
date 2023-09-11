@@ -15,7 +15,7 @@ module.exports.city = async (req, res) => {
 module.exports.hotel_city = async(req,res) =>{
   try {
 
-    const city  = req.body.city
+    const city  = req.params.city
     const hotel = await Hotel.find({hotel_city : city});
 
     return res.json(hotel);
