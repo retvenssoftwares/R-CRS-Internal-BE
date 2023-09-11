@@ -45,7 +45,7 @@ module.exports.create_booking = async (req, res) => {
 
 
 
- 
+
 
   const errorCodesToMatch = [
     " HotelCodeEmpty",
@@ -73,31 +73,33 @@ module.exports.create_booking = async (req, res) => {
     Title,
     First_Name,
     Last_Name,
-    Gender,                              
+    Gender,
     SpecialRequest,
-  
+
     check_in_date,
     check_out_date,
     Booking_Payment_Mode,
     Email_Address,
     Source_Id,
-    MobileNo ,
-    Address ,
+    MobileNo,
+    Address,
     State,
-    Country ,
+    Country,
     City,
     Zipcode,
     Languagekey,
-    paymenttypeunkid} = req.body
-  
+    paymenttypeunkid } = req.body
 
 
 
-  const data = new ezze_booking_details ({
-  
+
+  const data = new ezze_booking_details({
+
     Room_Details:
-   {Room_1:
-      { Rateplan_Id,
+    {
+      Room_1:
+      {
+        Rateplan_Id,
         Ratetype_Id,
         Roomtype_Id,
         baserate,
@@ -109,25 +111,41 @@ module.exports.create_booking = async (req, res) => {
         Title,
         First_Name,
         Last_Name,
-        Gender,                              
+        Gender,
         SpecialRequest
-    },
+      },
    
+    Room_2: {
+      Rateplan_Id,
+      Ratetype_Id,
+      Roomtype_Id,
+      baserate,
+      extradultrate,
+      extrachildrate,
+      number_adults,
+      number_children,
+      ExtraChild_Age,
+      Title,
+      First_Name,
+      Last_Name,
+      Gender,
+      SpecialRequest
+    },
   },
-  check_in_date,
+    check_in_date,
     check_out_date,
     Booking_Payment_Mode,
     Email_Address,
     Source_Id,
-    MobileNo ,
-    Address ,
+    MobileNo,
+    Address,
     State,
-    Country ,
+    Country,
     City,
     Zipcode,
     Languagekey,
     paymenttypeunkid
-   
+
   })
 
   await data.save()
@@ -139,7 +157,7 @@ module.exports.create_booking = async (req, res) => {
   const formData = new FormData();
   const stringBody = JSON.stringify(data)
   formData.append('BookingData', stringBody)
-  
+
   const config = {
     method: 'post',
     url: `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_ezee_auth_code}`,
@@ -148,7 +166,7 @@ module.exports.create_booking = async (req, res) => {
     },
     data: formData, // Set the FormData object as the request body
   };
-  
+
   // Send the POST request
   try {
     const response = await axios(config);
@@ -181,25 +199,25 @@ module.exports.create_booking = async (req, res) => {
       gst_number,
       guest_special_request,
       reservation_type,
-      reservation_number : responseData.ReservationNo,
-      Inventory_Mode : responseData.Inventory_Mode,
-      lang_key :responseData.lang_key
-      })
-      await savedata.save()
+      reservation_number: responseData.ReservationNo,
+      Inventory_Mode: responseData.Inventory_Mode,
+      lang_key: responseData.lang_key
+    })
+    await savedata.save()
     console.log('Response:', responseData);
     return res.status(200).json({ responseData });
   } catch (error) {
     console.error('Error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
-  
+
   //await data.save()
 
 
 
 
-  
- 
+
+
 
 };
 
