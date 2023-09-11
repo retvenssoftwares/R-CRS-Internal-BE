@@ -128,7 +128,7 @@ module.exports.create_booking = async (req, res) => {
   const ezee = JSON.stringify(data);
   console.log(ezee);
 
-  const emp_name = await emp.findOne({employee_id}) 
+  
 
   try {
     // Find the hotel details based on the provided hotel name
@@ -246,7 +246,6 @@ module.exports.create_booking = async (req, res) => {
       hotel_name,
       booking_source,
       total_price,
-      employee_name : emp_name.employee_name,
       room_nights,
     });
 
