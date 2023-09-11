@@ -1,21 +1,20 @@
 const Booking = require("../../models/booking_model");
+const ezze_booking_details = require('../../models/ezee_booking_details')
 const Hotel = require("../../models/hotel_model");
 const emp = require('../../models/employee_model')
 const axios = require("axios");
 const xml2js = require("xml2js");
 const mongoose = require("mongoose");
+const FormData = require('form-data');
+const { response } = require("express");
 
 module.exports.create_booking = async (req, res) => {
   //const newBooking = new Booking(req.body);
 
+  // guest details
+
   const {
     hotel_r_code,
-    employee_id,
-    departure_date,
-    arrival_date,
-    checkin_time,
-    checkout_time,
-    roomTypes,
     guest_title,
     guest_first_name,
     guest_last_name,
@@ -40,13 +39,13 @@ module.exports.create_booking = async (req, res) => {
     company_address,
     gst_number,
     reservation_type,
-    reservation_number,
     made_by,
-    booking_source,
-    hotel_name,
-    total_price,
-    room_nights,
   } = req.body;
+
+
+
+
+ 
 
   const errorCodesToMatch = [
     " HotelCodeEmpty",
@@ -59,163 +58,103 @@ module.exports.create_booking = async (req, res) => {
   ];
   var booking_status = "";
 
-  const data = {
-    Room_Details: {
-      Room_1: {
-        Rateplan_Id: roomTypes.Rateplan_Id /* Mandatory */,
-        Ratetype_Id: roomTypes.Ratetype_Id /* Mandatory */,
-        Roomtype_Id: roomTypes.Roomtype_Id /* Mandatory */,
-        baserate: roomTypes.baserate /* Mandatory */,
-        extradultrate: roomTypes.extra_adult_rate /* Mandatory */,
-        extrachildrate: roomTypes.extra_child_rate /* Mandatory */,
-        number_adults: roomTypes.adult_number /* Mandatory */,
-        number_children: roomTypes.child_number /* Mandatory */,
-        ExtraChild_Age:roomTypes.child_age /* Mandatory if number_children is not zero*/,
+  // ezee booking data
 
-        //  Package_Details : { /* If package is booked then only pass below details and for package otherwise ignore :*/
-        //    Package_Id :  [PACKAGE_ID] , /* Mandatory */
-        //    Package_Name :  [PACKAGE_NAME] , /* Mandatory */
-        //    Package_Description :  PACKAGE_DESCRIPTION
-        // },
-        //  Promotion_Details : { /* If room is booked using promotional code then only pass below details and for promotion otherwise ignore: */
-        //    Promotional_Code :  [PROMOTIONAL_CODE] , /* Mandatory */
-        //    Promotion_Id :  [PROMOTION_ID] , /* Mandatory */
-        //    Promotion_Name :  [PROMOTION_NAME] , /* Mandatory */
-        //    Promotion_Description :  [PROMOTION_DESCRIPTION]
-        // },
-        Title: guest_title,
-        First_Name: guest_first_name /* Mandatory */,
-        Last_Name: guest_last_name /* Mandatory */,
-        Gender: guest_gender,
-        SpecialRequest: guest_special_request,
-      },
-    },
-    //  ExtraCharge : { /* This will be useful when various Extra Charges exist in system and booker take any extra charge in booking. */
-    //    Extra_1 : {
-    //      ExtraChargeId :  [EXTRACHARGEID] , /* Mandatory */
-    //      ChargeAdult :  [CHARGEADULT]  /* Mandatory */
-    //   },
-    //    Extra_2 : {
-    //      ExtraChargeId :  [EXTRACHARGEID] ,
-    //      ChargeChild :  [CHARGECHILD]
-    //   },
-    // },
-    //  CardDetails : { /* All below parameters related to CardDetails are mandatory for inserting card details in transaction. If any of the below listed parameter is missing card details won’t be added in transaction. */
-    //    cc_cardnumber :  [CC_CARDNUMBER] ,
-    //    cc_cardtype :  [CC_CARDTYPE] ,
-    //    cc_expiremonth :  [CC_EXPIREMONTH] ,
-    //    cc_expireyear :  [CC_EXPIERYEAR] ,
-    //    cvvcode :  [CVVCODE] ,
-    //    cardholdername :  [CARDHOLDERNAME]
-    // },
-    check_in_date: arrival_date /* Mandatory */,
-    check_out_date: departure_date /* Mandatory */,
-    Booking_Payment_Mode: payment_mode,
-    Email_Address: guest_email /* Mandatory */,
-    //Source_Id :  [SOURCE_ID] ,
-    MobileNo: guest_mobile_number,
-    Address: guest_address,
-    State: guest_state,
-    Country: guest_country,
-    City: guest_city,
-    Zipcode: guest_zip_code,
-    Fax: guest_fax,
-    Device: guest_device,
-    //Languagekey :  [LANGUAGEKEY] ,
-    paymenttypeunkid: payment_id,
-  };
-
-  const ezee = JSON.stringify(data);
-  console.log(ezee);
-
+  const {
+    Rateplan_Id,
+    Ratetype_Id,
+    Roomtype_Id,
+    baserate,
+    extradultrate,
+    extrachildrate,
+    number_adults,
+    number_children,
+    ExtraChild_Age,
+    Title,
+    First_Name,
+    Last_Name,
+    Gender,                              
+    SpecialRequest,
+  
+    check_in_date,
+    check_out_date,
+    Booking_Payment_Mode,
+    Email_Address,
+    Source_Id,
+    MobileNo ,
+    Address ,
+    State,
+    Country ,
+    City,
+    Zipcode,
+    Languagekey,
+    paymenttypeunkid} = req.body
   
 
+
+
+  const data = new ezze_booking_details ({
+  
+    Room_Details:
+   {Room_1:
+      { Rateplan_Id,
+        Ratetype_Id,
+        Roomtype_Id,
+        baserate,
+        extradultrate,
+        extrachildrate,
+        number_adults,
+        number_children,
+        ExtraChild_Age,
+        Title,
+        First_Name,
+        Last_Name,
+        Gender,                              
+        SpecialRequest
+    },
+   
+  },
+  check_in_date,
+    check_out_date,
+    Booking_Payment_Mode,
+    Email_Address,
+    Source_Id,
+    MobileNo ,
+    Address ,
+    State,
+    Country ,
+    City,
+    Zipcode,
+    Languagekey,
+    paymenttypeunkid
+   
+  })
+
+  await data.save()
+
+
+  const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
+
+  //const data2 = {"Room_Details":{"Room_1":{"Rateplan_Id": "1872700000000000001","Ratetype_Id": "1872700000000000001","Roomtype_Id": "1872700000000000001","baserate":"2000,2000","extradultrate":"500,500","extrachildrate":"500,500","number_adults":"1","number_children":"0","ExtraChild_Age":"0","Title":"Mr","First_Name":"Aman","Last_Name":"Sharma","Gender":"Male","SpecialRequest":""}},"check_in_date":"2023-09-16","check_out_date":"2023-09-18","Booking_Payment_Mode":"Offline","Email_Address":"amandecembersharma@gmail.com","Source_Id":"","MobileNo":"+918563919033","Address":"4/10 new mig w block keshav nagar","State":"Uttar Pradesh","Country":"India","City":"Kanpur","Zipcode":"208014","Languagekey":"en","paymenttypeunkid":""}
+  const formData = new FormData();
+  const stringBody = JSON.stringify(data)
+  formData.append('BookingData', stringBody)
+  
+  const config = {
+    method: 'post',
+    url: `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_ezee_auth_code}`,
+    headers: {
+      ...formData.getHeaders(), // Set the Content-Type header to multipart/form-data
+    },
+    data: formData, // Set the FormData object as the request body
+  };
+  
+  // Send the POST request
   try {
-    // Find the hotel details based on the provided hotel name
-    const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
-
-    if (!selectedHotel) {
-      return res.status(400).json({ error: "Hotel not found" });
-    }
-
-    const response = await axios.get(
-      `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`
-
-    );
-    //console.log( `https://live.ipms247.com/booking/reservation_api/listing.php?request_type=InsertBooking&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&BookingData=[${ezee}]`)
-    console.log(response.data);
-
-    // Check if the response contains an error code
-    if (
-      response.data &&
-      response.data[0] &&
-      response.data[0]["Error Details"]
-    ) {
-      const errorCode = response.data[0]["Error Details"]["Error_Code"];
-
-      // Check if the error code matches predefined values
-      if (errorCodesToMatch.includes(errorCode)) {
-        // Save the JSON response in the database with validation status as failure
-        booking_status = "Fail Booking";
-      }
-    }
-
-    // const booking = new Booking();
-    // booking.hotel_r_code = hotel_r_code
-    // booking.employee_id = employee_id
-    // booking.arrival_date = arrival_date
-    // booking.departure_date = departure_date
-    // booking.checkin_time =checkin_time
-    // booking.checkout_time = checkout_time
-    // booking.room_type = room_type
-    // booking.rate_plan = rate_plan
-    // booking.rate_type = rate_type
-    // booking.rate_plan_id = rate_plan_id
-    // booking.room_type_id = room_type_id
-    // booking.rate_type_id = rate_type_id
-    // booking.base_rate = base_rate
-    // booking.extra_adult_rate = extra_adult_rate
-    // booking.extra_child_rate = extra_child_rate
-    // booking.adult_number = adult_number
-    // booking.child_number = child_number
-    // booking.child_age = child_age
-    // booking.guest_title = guest_title
-    // booking.guest_first_name = guest_first_name
-    // booking.guest_last_name = guest_last_name
-    // booking.guest_gender = guest_gender
-    // booking.guest_mobile_number = guest_mobile_number
-    // booking.guest_email = guest_email
-    // booking.guest_special_request = guest_special_request
-    // booking.guest_address = guest_address
-    // booking.guest_city =guest_city
-    // booking.guest_state = guest_state
-    // booking.guest_country= guest_country
-    // booking.guest_zip_code= guest_zip_code
-    // booking.guest_fax = guest_fax
-    // booking.guest_device = guest_device
-    // booking.discount = discount
-    // booking.payment_mode = payment_mode
-    // booking.billing_instructions = billing_instructions
-    // booking.payment_id = payment_id
-    // booking.business_source = business_source
-    // booking.market_segment = market_segment
-    // booking.company_name = company_name
-    // booking.company_address = company_address
-    // booking.gst_number = gst_number
-    // booking.special_request = special_request
-    // booking.reservation_type = reservation_type
-    // booking.pickup_date = pickup_date
-    // booking.drop_date = drop_date
-    // booking.booking_status = booking_status
-
-    const booked = new Booking({
+    const response = await axios(config);
+    const responseData = response.data;
+    const savedata = new Booking({
       hotel_r_code,
-      employee_id,
-      departure_date,
-      arrival_date,
-      checkin_time,
-      checkout_time,
-      roomTypes,
       guest_title,
       guest_first_name,
       guest_last_name,
@@ -230,6 +169,7 @@ module.exports.create_booking = async (req, res) => {
       guest_zip_code,
       guest_fax,
       guest_device,
+      made_by,
       discount,
       payment_mode,
       billing_instructions,
@@ -239,86 +179,29 @@ module.exports.create_booking = async (req, res) => {
       company_name,
       company_address,
       gst_number,
+      guest_special_request,
       reservation_type,
-      reservation_number,
-      //booking_status,
-      made_by,
-      hotel_name,
-      booking_source,
-      total_price,
-      room_nights,
-    });
-
-    await booked.save((err, result) => {
-      if (err) {
-        return res.status(400).json({
-          error: err,
-        });
-      }
-
-      res.status(200).json({
-        message: " New booking successfully created",
-        booking: result,
-      });
-    });
+      reservation_number : responseData.ReservationNo,
+      Inventory_Mode : responseData.Inventory_Mode,
+      lang_key :responseData.lang_key
+      })
+      await savedata.save()
+    console.log('Response:', responseData);
+    return res.status(200).json({ responseData });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "API call failed" });
+    console.error('Error:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
+  
+  //await data.save()
+
+
+
+
+  
+ 
+
 };
 
-//   const mongoose = require('mongoose');
 
-// const roomSchema = new mongoose.Schema({
-//   Rateplan_Id: { type: String, required: true },
-//   Ratetype_Id: { type: String, required: true },
-//   Roomtype_Id: { type: String, required: true },
-//   baserate: { type: String, required: true },
-//   extradultrate: { type: String, required: true },
-//   extrachildrate: { type: String, required: true },
-//   number_adults: { type: String, required: true },
-//   number_children: { type: String, required: true },
-//   ExtraChild_Age: { type: String },
-//   Package_Details: {
-//     Package_Id: { type: String, required: true },
-//     Package_Name: { type: String, required: true },
-//     Package_Description: { type: String },
-//   },
-//   Promotion_Details: {
-//     Promotional_Code: { type: String, required: true },
-//     Promotion_Id: { type: String, required: true },
-//     Promotion_Name: { type: String, required: true },
-//     Promotion_Description: { type: String, required: true },
-//   },
-//   Title: { type: String },
-//   First_Name: { type: String, required: true },
-//   Last_Name: { type: String, required: true },
-//   Gender: { type: String },
-//   SpecialRequest: { type: String },
-// });
 
-// const extraChargeSchema = new mongoose.Schema({
-//   ExtraChargeId: { type: String, required: true },
-//   ChargeAdult: { type: String, required: true },
-//   ChargeChild: { type: String },
-// });
-
-// const bookingSchema = new mongoose.Schema({
-//   Room_Details: [
-//     {
-//       room: roomSchema,
-//     },
-//   ],
-//   ExtraCharge: [
-//     {
-//       extraCharge: extraChargeSchema,
-//     },
-//   ],
-//   // ... other fields ...
-
-//   check_in_date: { type: String, required: true },
-//   check_out_date: { type: String, required: true },
-//   // ... other fields ...
-// });
-
-// module.exports = mongoose.model('Booking', bookingSchema);

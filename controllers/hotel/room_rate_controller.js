@@ -24,7 +24,7 @@ module.exports.retreive_room_rate =  async (req, res) => {
           <Request_Type>Rate</Request_Type>
           <Authentication>
             <HotelCode>${selectedHotel.hotel_ezee_code}</HotelCode>
-            <AuthCode>${selectedHotel.hotel_auth_code}</AuthCode>
+            <AuthCode>${selectedHotel.hotel_ezee_auth_code}</AuthCode>
           </Authentication>
           <FromDate>${fromDate}</FromDate>
           <ToDate>${toDate}</ToDate>
