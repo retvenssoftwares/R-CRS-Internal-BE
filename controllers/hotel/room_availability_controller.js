@@ -21,7 +21,7 @@ module.exports.room_availability =  async (req, res) => {
   
   console.log("making request to ezee")
     // Make a request to another API using the JSON request body
-    const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=RoomList&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_auth_code}&check_in_date=${check_in_date}&check_out_date=${check_out_date}`);
+    const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=RoomList&HotelCode=${selectedHotel.hotel_ezee_code}&APIKey=${selectedHotel.hotel_ezee_auth_code}&check_in_date=${check_in_date}&check_out_date=${check_out_date}`);
 
     // Return the JSON response from the external API
     res.json(response.data);
