@@ -45,6 +45,7 @@ module.exports.get_hotel_by_id = async (req, res) => {
       room_details: filteredRoomDetails, // Include filtered room details in the response
       hotel_address_line_1: data.hotel_address_line_1,
       hotel_address_line_2: data.hotel_address_line_2,
+      hotel_description: data.hotel_description
     });
   } catch (error) {
     // Handle errors, e.g., network errors or errors in the Axios request
