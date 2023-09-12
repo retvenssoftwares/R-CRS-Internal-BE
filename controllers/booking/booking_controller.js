@@ -45,6 +45,23 @@ module.exports.create_booking = async (req, res) => {
     Room_Details,
   } = req.body;
 
+  const additionalData = {
+    check_in_date: req.body.check_in_date,
+    check_out_date: req.body.check_out_date,
+    Booking_Payment_Mode: req.body.Booking_Payment_Mode,
+    Email_Address: req.body.Email_Address,
+    Source_Id: req.body.Source_Id,
+    MobileNo: req.body.MobileNo,
+    Address: req.body.Address,
+    State: req.body.State,
+    Country: req.body.Country,
+    City: req.body.City,
+    Zipcode: req.body.Zipcode,
+    Languagekey: req.body.Languagekey,
+    paymenttypeunkid: req.body.paymenttypeunkid
+  };
+
+
   const errorCodesToMatch = [
     " HotelCodeEmpty",
     "NORESACC",
@@ -56,79 +73,6 @@ module.exports.create_booking = async (req, res) => {
   ];
   var booking_status = "";
 
-  // ezee booking data
-
-  // const {
-
-  //   Rateplan_Id,
-  //   Ratetype_Id,
-  //   Roomtype_Id,
-  //   baserate,
-  //   extradultrate,
-  //   extrachildrate,
-  //   number_adults,
-  //   number_children,
-  //   ExtraChild_Age,
-  //   Title,
-  //   First_Name,
-  //   Last_Name,
-  //   Gender,
-  //   SpecialRequest,
-
-  //   check_in_date,
-  //   check_out_date,
-  //   Booking_Payment_Mode,
-  //   Email_Address,
-  //   Source_Id,
-  //   MobileNo ,
-  //   Address ,
-  //   State,
-  //   Country ,
-  //   City,
-  //   Zipcode,
-  //   Languagekey,
-  //   paymenttypeunkid} = req.body
-
-  //   const data = {
-
-  //     Room_Details:
-  //    {Room_1:
-  //       { Rateplan_Id :Rateplan_Id,
-  //         Ratetype_Id :Ratetype_Id,
-  //         Roomtype_Id : Roomtype_Id,
-  //         baserate : baserate,
-  //         extradultrate :extradultrate,
-  //         extrachildrate :extrachildrate,
-  //         number_adults :number_adults,
-  //         number_children :number_children,
-  //         ExtraChild_Age :ExtraChild_Age,
-  //         Title : Title,
-  //         First_Name : First_Name ,
-  //         Last_Name : Last_Name,
-  //         Gender : Gender,
-  //         SpecialRequest : SpecialRequest
-  //     },
-
-  //   },
-  //   check_in_date :check_in_date,
-  //     check_out_date : check_out_date,
-  //     Booking_Payment_Mode : Booking_Payment_Mode,
-  //     Email_Address:Email_Address,
-  //     Source_Id:Source_Id,
-  //     MobileNo :MobileNo,
-  //     Address:Address ,
-  //     State :State,
-  //     Country  : Country,
-  //     City : City,
-  //     Zipcode :Zipcode,
-  //     Languagekey :Languagekey,
-  //     paymenttypeunkid :paymenttypeunkid
-
-  // }
-
-  // console.log(data)
-
-  // await data.save()
   const rooms = [];
 
   // Loop through the rooms in Room_Details and create Room objects
@@ -155,22 +99,7 @@ module.exports.create_booking = async (req, res) => {
   }
 
 
-  
-const additionalData = {
-  check_in_date: '2023-09-25',
-  check_out_date: '2023-09-27',
-  Booking_Payment_Mode: 'Offline',
-  Email_Address: 'amandecembersharma@gmail.com',
-  Source_Id: '',
-  MobileNo: '+918563919033',
-  Address: '4/10 new mig w block keshav nagar',
-  State: 'Uttar Pradesh',
-  Country: 'India',
-  City: 'Kanpur',
-  Zipcode: '208014',
-  Languagekey: 'en',
-  paymenttypeunkid: ''
-};
+   
 
   const data1 = new ezze_booking_details({
     Room:[{
@@ -190,21 +119,6 @@ const additionalData = {
       SpecialRequest :rooms.SpecialRequest
 
     }],
-
-    ///sab me req.body likhna h
-    check_in_date :req.body.check_in_date,
-    check_out_date :rooms.check_out_date,
-    Booking_Payment_Mode :rooms.Booking_Payment_Mode,
-    Email_Address :rooms. Email_Address,
-    Source_Id :rooms.Source_Id,
-    MobileNo  :rooms.MobileNo,
-    Address :rooms.Address ,
-    State :rooms.State,
-    Country  :rooms.Country,
-    City :rooms.City,
-    Zipcode  :rooms.Zipcode,
-    Languagekey  :rooms.Languagekey,
-    paymenttypeunkid :rooms.paymenttypeunkid
 
   })
 
