@@ -17,6 +17,11 @@ module.exports.hotel_city = async(req,res) =>{
 
     const city  = req.params.city
     const hotel = await Hotel.find({hotel_city : city});
+    if (hotel.length === 0) {
+      console.log("No hotels found in the city:", city);
+      let all_hotels = await Hotel.find({});
+      return res.json(all_hotels);
+    }
 
     return res.json(hotel);
   } catch (error) {
