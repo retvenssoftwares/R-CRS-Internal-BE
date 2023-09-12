@@ -174,7 +174,7 @@ const bookingSchema = mongoose.Schema({
     },
     made_by:{
         type: String,
-        required: true,
+        required: false,
         default: ''
     },
     hotel_name: {
