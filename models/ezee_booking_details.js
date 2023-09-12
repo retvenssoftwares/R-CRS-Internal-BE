@@ -17,14 +17,8 @@ const roomSchema = new mongoose.Schema({
   SpecialRequest: { type: String, required: false },
 });
 
-const dataSchema = new mongoose.Schema({
+const check_inout_details = new mongoose.Schema({
 
- 
-    Room: [{
-      type: roomSchema,
-      required: false,
-    }],
-  
   check_in_date: { type: String, required: false },
   check_out_date: { type: String, required: false },
   Booking_Payment_Mode: { type: String, required: false },
@@ -40,6 +34,26 @@ const dataSchema = new mongoose.Schema({
   Zipcode: { type: String, required: false },
   Languagekey: { type: String, required: false },
   paymenttypeunkid: { type: String },
+  subReservation_no:[
+    {type: String}
+  ],
+
+})
+
+const dataSchema = new mongoose.Schema({
+
+ 
+    Room: [{
+      type: roomSchema,
+      required: false,
+    }],
+
+    Check_in_out_details :{
+      type : check_inout_details ,
+      required : false
+    }  
+  
+  
 });
 
 // Create a Mongoose model for your data

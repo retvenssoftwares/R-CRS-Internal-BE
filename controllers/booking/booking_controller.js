@@ -9,7 +9,6 @@ const FormData = require("form-data");
 const { response } = require("express");
 
 module.exports.create_booking = async (req, res) => {
-
   const {
     hotel_r_code,
     employee_id,
@@ -39,24 +38,39 @@ module.exports.create_booking = async (req, res) => {
     reservation_type,
     made_by,
     Room_Details,
+    check_in_date,
+    check_out_date,
+    Booking_Payment_Mode,
+    Email_Address,
+    Source_Id,
+    MobileNo,
+    Address,
+    State,
+    Country,
+    City,
+    Zipcode,
+    Languagekey,
+    paymenttypeunkid,
+
   } = req.body;
 
-  const additionalData = {
-    check_in_date: req.body.check_in_date,
-    check_out_date: req.body.check_out_date,
-    Booking_Payment_Mode: req.body.Booking_Payment_Mode,
-    Email_Address: req.body.Email_Address,
-    Source_Id: req.body.Source_Id,
-    MobileNo: req.body.MobileNo,
-    Address: req.body.Address,
-    State: req.body.State,
-    Country: req.body.Country,
-    City: req.body.City,
-    Zipcode: req.body.Zipcode,
-    Languagekey: req.body.Languagekey,
-    paymenttypeunkid: req.body.paymenttypeunkid
-  };
+  // additional data is use for preparing valid json for ezee
 
+  const additionalData = {
+    check_in_date: check_in_date,
+    check_out_date: check_out_date,
+    Booking_Payment_Mode: Booking_Payment_Mode,
+    Email_Address: Email_Address,
+    Source_Id: Source_Id,
+    MobileNo: MobileNo,
+    Address: Address,
+    State: State,
+    Country: Country,
+    City: City,
+    Zipcode: Zipcode,
+    Languagekey: Languagekey,
+    paymenttypeunkid: paymenttypeunkid,
+  };
 
   const errorCodesToMatch = [
     " HotelCodeEmpty",
@@ -94,31 +108,9 @@ module.exports.create_booking = async (req, res) => {
     }
   }
 
+ 
 
-  const data1 = new ezze_booking_details({
-    Room: [{
-      Rateplan_Id: rooms.Rateplan_Id,
-      Ratetype_Id: rooms.Ratetype_Id,
-      Roomtype_Id: rooms.Roomtype_Id,
-      baserate: rooms.baserate,
-      extradultrate: rooms.extradultrate,
-      extrachildrate: rooms.extrachildrate,
-      number_adults: rooms.number_adults,
-      number_children: rooms.number_children,
-      ExtraChild_Age: rooms.ExtraChild_Age,
-      Title: rooms.Title,
-      First_Name: rooms.First_Name,
-      Last_Name: rooms.Last_Name,
-      Gender: rooms.Gender,
-      SpecialRequest: rooms.SpecialRequest
-
-    }],
-
-  })
-
-  await data1.save()
-  //console.log(rooms);
-
+  // this function will convert the rooms array into transformedRooms object
   const transformedRooms = {};
   rooms.forEach((room, index) => {
     const roomKey = `Room_${index + 1}`;
@@ -128,11 +120,10 @@ module.exports.create_booking = async (req, res) => {
   // Create the final object by merging transformedRooms and additionalData
   const finalObject = { Room_Details: transformedRooms, ...additionalData };
 
-  console.log(finalObject);
 
   const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
 
-  //const data2 = {"Room_Details":{"Room_1":{"Rateplan_Id": "1872700000000000001","Ratetype_Id": "1872700000000000001","Roomtype_Id": "1872700000000000001","baserate":"2000,2000","extradultrate":"500,500","extrachildrate":"500,500","number_adults":"1","number_children":"0","ExtraChild_Age":"0","Title":"Mr","First_Name":"Aman","Last_Name":"Sharma","Gender":"Male","SpecialRequest":""}},"check_in_date":"2023-09-16","check_out_date":"2023-09-18","Booking_Payment_Mode":"Offline","Email_Address":"amandecembersharma@gmail.com","Source_Id":"","MobileNo":"+918563919033","Address":"4/10 new mig w block keshav nagar","State":"Uttar Pradesh","Country":"India","City":"Kanpur","Zipcode":"208014","Languagekey":"en","paymenttypeunkid":""}
+  
   const formData = new FormData();
   const stringBody = JSON.stringify(finalObject);
   formData.append("BookingData", stringBody);
@@ -182,18 +173,65 @@ module.exports.create_booking = async (req, res) => {
       reservation_number: responseData.ReservationNo,
       Inventory_Mode: responseData.Inventory_Mode,
       lang_key: responseData.lang_key,
+      subReservation_no : responseData.SubReservationNo
     });
     let successful_booking = await savedata.save();
+    const ezzeBookingDetails = new ezze_booking_details({
+      Room: rooms.map((room) => ({
+        Rateplan_Id: room.Rateplan_Id,
+        Ratetype_Id: room.Ratetype_Id,
+        Roomtype_Id: room.Roomtype_Id,
+        baserate: room.baserate,
+        extradultrate: room.extradultrate,
+        extrachildrate: room.extrachildrate,
+        number_adults: room.number_adults,
+        number_children: room.number_children,
+        ExtraChild_Age: room.ExtraChild_Age,
+        Title: room.Title,
+        First_Name: room.First_Name,
+        Last_Name: room.Last_Name,
+        Gender: room.Gender,
+        SpecialRequest: room.SpecialRequest,
+      })),
+  
+      Check_in_out_details: {
+        check_in_date: check_in_date,
+        check_out_date: check_out_date,
+        Booking_Payment_Mode: Booking_Payment_Mode,
+        Email_Address: Email_Address,
+        Source_Id: Source_Id,
+        MobileNo: MobileNo,
+        Address: Address,
+        State: State,
+        Country: Country,
+        City: City,
+        Zipcode: Zipcode,
+        Languagekey: Languagekey,
+        paymenttypeunkid: paymenttypeunkid,
+        booking_id : successful_booking.booking_id,
+        ezee_reservation_no : responseData.ReservationNo,
+        subReservation_no : responseData.SubReservationNo
+      },
+    });
+  
+    await ezzeBookingDetails.save();
     console.log("Response:", responseData);
+
     if (successful_booking) {
-      await Booking.updateOne({ booking_id: savedata.booking_id }, { $set: { booking_status: "ConfirmBooking" } })
+      await Booking.updateOne(
+        { booking_id: savedata.booking_id },
+        { $set: { booking_status: "ConfirmBooking" } }
+      );
       return res.status(200).json({ responseData });
     }
   } catch (error) {
     console.error("Error:", error);
-    await Booking.updateOne({ booking_id: savedata.booking_id }, { $set: { booking_status: "FailBooking" } })
+    await Booking.updateOne(
+      { booking_id: savedata.booking_id },
+      { $set: { booking_status: "FailBooking" } }
+    );
     return res.status(500).json({ error: "Internal Server Error" });
   }
 
-  //await data.save()
+  
 };
