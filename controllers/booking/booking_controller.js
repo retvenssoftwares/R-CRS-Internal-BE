@@ -101,28 +101,58 @@ module.exports.create_booking = async (req, res) => {
 
    
 
-  const data1 = new ezze_booking_details({
-    Room:[{
-      Rateplan_Id :rooms.Rateplan_Id,
-      Ratetype_Id :rooms.Ratetype_Id,
-      Roomtype_Id :rooms.Roomtype_Id ,
-      baserate :rooms.baserate,
-      extradultrate :rooms.extradultrate,
-      extrachildrate :rooms.extrachildrate,
-      number_adults :rooms.number_adults,
-      number_children :rooms.number_children,
-      ExtraChild_Age :rooms.ExtraChild_Age,
-      Title :rooms.Title,
-      First_Name :rooms.First_Name,
-      Last_Name :rooms.Last_Name,
-      Gender :rooms.Gender,
-      SpecialRequest :rooms.SpecialRequest
+  // const ezzeBookingDetailsArray = [];
 
-    }],
+  const ezzeBookingDetails = new ezze_booking_details({
+    Room: rooms.map(room => ({
+      Rateplan_Id: room.Rateplan_Id,
+      Ratetype_Id: room.Ratetype_Id,
+      Roomtype_Id: room.Roomtype_Id,
+      baserate: room.baserate,
+      extradultrate: room.extradultrate,
+      extrachildrate: room.extrachildrate,
+      number_adults: room.number_adults,
+      number_children: room.number_children,
+      ExtraChild_Age: room.ExtraChild_Age,
+      Title: room.Title,
+      First_Name: room.First_Name,
+      Last_Name: room.Last_Name,
+      Gender: room.Gender,
+      SpecialRequest: room.SpecialRequest
+    })),
 
-  })
+    Check_in_out_details :{
+    check_in_date: req.body.check_in_date,
+    check_out_date: req.body.check_out_date,
+    Booking_Payment_Mode: req.body.Booking_Payment_Mode,
+    Email_Address: req.body.Email_Address,
+    Source_Id: req.body.Source_Id,
+    MobileNo: req.body.MobileNo,
+    Address: req.body.Address,
+    State: req.body.State,
+    Country: req.body.Country,
+    City: req.body.City,
+    Zipcode: req.body.Zipcode,
+    Languagekey: req.body.Languagekey,
+    paymenttypeunkid: req.body.paymenttypeunkid
+    }
+  });
 
-  await data1.save()
+  await ezzeBookingDetails.save()
+  
+  // Now, the Room array within ezzeBookingDetails contains all the room details
+  
+  
+  // Now, the Rooms array contains the saved objects
+  
+  
+  // Now, ezzeBookingDetailsArray contains each ezze_booking_details object
+  
+
+// Now, ezzeBookingDetailsArray contains each room's details in the Room property
+
+
+ // await data1.save()
   //console.log(rooms);
 
   const transformedRooms = {};
