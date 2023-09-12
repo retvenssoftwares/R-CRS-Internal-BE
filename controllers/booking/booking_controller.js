@@ -9,11 +9,6 @@ const FormData = require("form-data");
 const { response } = require("express");
 
 module.exports.create_booking = async (req, res) => {
-  //const newBooking = new Booking(req.body);
-
-  // guest details
-  //                  const hotel_r_code = req.params.hotel_r_code
-
   const {
     hotel_r_code,
     employee_id,
@@ -43,24 +38,38 @@ module.exports.create_booking = async (req, res) => {
     reservation_type,
     made_by,
     Room_Details,
+    check_in_date,
+    check_out_date,
+    Booking_Payment_Mode,
+    Email_Address,
+    Source_Id,
+    MobileNo,
+    Address,
+    State,
+    Country,
+    City,
+    Zipcode,
+    Languagekey,
+    paymenttypeunkid,
+    // booking_id,
+    // ezee_reservation_no,
   } = req.body;
 
   const additionalData = {
-    check_in_date: req.body.check_in_date,
-    check_out_date: req.body.check_out_date,
-    Booking_Payment_Mode: req.body.Booking_Payment_Mode,
-    Email_Address: req.body.Email_Address,
-    Source_Id: req.body.Source_Id,
-    MobileNo: req.body.MobileNo,
-    Address: req.body.Address,
-    State: req.body.State,
-    Country: req.body.Country,
-    City: req.body.City,
-    Zipcode: req.body.Zipcode,
-    Languagekey: req.body.Languagekey,
-    paymenttypeunkid: req.body.paymenttypeunkid
+    check_in_date: check_in_date,
+    check_out_date: check_out_date,
+    Booking_Payment_Mode: Booking_Payment_Mode,
+    Email_Address: Email_Address,
+    Source_Id: Source_Id,
+    MobileNo: MobileNo,
+    Address: Address,
+    State: State,
+    Country: Country,
+    City: City,
+    Zipcode: Zipcode,
+    Languagekey: Languagekey,
+    paymenttypeunkid: paymenttypeunkid,
   };
-
 
   const errorCodesToMatch = [
     " HotelCodeEmpty",
@@ -98,61 +107,19 @@ module.exports.create_booking = async (req, res) => {
     }
   }
 
-
-   
-
   // const ezzeBookingDetailsArray = [];
 
-  const ezzeBookingDetails = new ezze_booking_details({
-    Room: rooms.map(room => ({
-      Rateplan_Id: room.Rateplan_Id,
-      Ratetype_Id: room.Ratetype_Id,
-      Roomtype_Id: room.Roomtype_Id,
-      baserate: room.baserate,
-      extradultrate: room.extradultrate,
-      extrachildrate: room.extrachildrate,
-      number_adults: room.number_adults,
-      number_children: room.number_children,
-      ExtraChild_Age: room.ExtraChild_Age,
-      Title: room.Title,
-      First_Name: room.First_Name,
-      Last_Name: room.Last_Name,
-      Gender: room.Gender,
-      SpecialRequest: room.SpecialRequest
-    })),
 
-    Check_in_out_details :{
-    check_in_date: req.body.check_in_date,
-    check_out_date: req.body.check_out_date,
-    Booking_Payment_Mode: req.body.Booking_Payment_Mode,
-    Email_Address: req.body.Email_Address,
-    Source_Id: req.body.Source_Id,
-    MobileNo: req.body.MobileNo,
-    Address: req.body.Address,
-    State: req.body.State,
-    Country: req.body.Country,
-    City: req.body.City,
-    Zipcode: req.body.Zipcode,
-    Languagekey: req.body.Languagekey,
-    paymenttypeunkid: req.body.paymenttypeunkid
-    }
-  });
 
-  await ezzeBookingDetails.save()
-  
   // Now, the Room array within ezzeBookingDetails contains all the room details
-  
-  
+
   // Now, the Rooms array contains the saved objects
-  
-  
+
   // Now, ezzeBookingDetailsArray contains each ezze_booking_details object
-  
 
-// Now, ezzeBookingDetailsArray contains each room's details in the Room property
+  // Now, ezzeBookingDetailsArray contains each room's details in the Room property
 
-
- // await data1.save()
+  // await data1.save()
   //console.log(rooms);
 
   const transformedRooms = {};
@@ -160,7 +127,7 @@ module.exports.create_booking = async (req, res) => {
     const roomKey = `Room_${index + 1}`;
     transformedRooms[roomKey] = room;
   });
-  
+
   // Create the final object by merging transformedRooms and additionalData
   const finalObject = { Room_Details: transformedRooms, ...additionalData };
 
@@ -219,11 +186,59 @@ module.exports.create_booking = async (req, res) => {
       Inventory_Mode: responseData.Inventory_Mode,
       lang_key: responseData.lang_key,
     });
-    await savedata.save();
+    let successful_booking = await savedata.save();
+    const ezzeBookingDetails = new ezze_booking_details({
+      Room: rooms.map((room) => ({
+        Rateplan_Id: room.Rateplan_Id,
+        Ratetype_Id: room.Ratetype_Id,
+        Roomtype_Id: room.Roomtype_Id,
+        baserate: room.baserate,
+        extradultrate: room.extradultrate,
+        extrachildrate: room.extrachildrate,
+        number_adults: room.number_adults,
+        number_children: room.number_children,
+        ExtraChild_Age: room.ExtraChild_Age,
+        Title: room.Title,
+        First_Name: room.First_Name,
+        Last_Name: room.Last_Name,
+        Gender: room.Gender,
+        SpecialRequest: room.SpecialRequest,
+      })),
+  
+      Check_in_out_details: {
+        check_in_date: check_in_date,
+        check_out_date: check_out_date,
+        Booking_Payment_Mode: Booking_Payment_Mode,
+        Email_Address: Email_Address,
+        Source_Id: Source_Id,
+        MobileNo: MobileNo,
+        Address: Address,
+        State: State,
+        Country: Country,
+        City: City,
+        Zipcode: Zipcode,
+        Languagekey: Languagekey,
+        paymenttypeunkid: paymenttypeunkid,
+        booking_id : successful_booking.booking_id,
+        ezee_reservation_no : responseData.ReservationNo
+      },
+    });
+  
+    await ezzeBookingDetails.save();
     console.log("Response:", responseData);
-    return res.status(200).json({ responseData });
+    if (successful_booking) {
+      await Booking.updateOne(
+        { booking_id: savedata.booking_id },
+        { $set: { booking_status: "ConfirmBooking" } }
+      );
+      return res.status(200).json({ responseData });
+    }
   } catch (error) {
     console.error("Error:", error);
+    await Booking.updateOne(
+      { booking_id: savedata.booking_id },
+      { $set: { booking_status: "FailBooking" } }
+    );
     return res.status(500).json({ error: "Internal Server Error" });
   }
 

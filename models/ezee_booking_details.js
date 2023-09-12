@@ -27,6 +27,8 @@ const check_inout_details = new mongoose.Schema({
   MobileNo: { type: String, required: false },
   Address: { type: String, required: false },
   State: { type: String, required: false },
+  booking_id: {type: String, required: false, default: ''},
+  ezee_reservation_no: {type: String, default: ''},
   Country: { type: String, required: false },
   City: { type: String, required: false },
   Zipcode: { type: String, required: false },
