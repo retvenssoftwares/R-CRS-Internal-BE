@@ -41,6 +41,23 @@ module.exports.create_booking = async (req, res) => {
     Room_Details,
   } = req.body;
 
+  const additionalData = {
+    check_in_date: req.body.check_in_date,
+    check_out_date: req.body.check_out_date,
+    Booking_Payment_Mode: req.body.Booking_Payment_Mode,
+    Email_Address: req.body.Email_Address,
+    Source_Id: req.body.Source_Id,
+    MobileNo: req.body.MobileNo,
+    Address: req.body.Address,
+    State: req.body.State,
+    Country: req.body.Country,
+    City: req.body.City,
+    Zipcode: req.body.Zipcode,
+    Languagekey: req.body.Languagekey,
+    paymenttypeunkid: req.body.paymenttypeunkid
+  };
+
+
   const errorCodesToMatch = [
     " HotelCodeEmpty",
     "NORESACC",
@@ -52,9 +69,6 @@ module.exports.create_booking = async (req, res) => {
   ];
   var booking_status = "";
 
-  
-
-  // await data.save()
   const rooms = [];
 
   // Loop through the rooms in Room_Details and create Room objects
@@ -81,72 +95,24 @@ module.exports.create_booking = async (req, res) => {
   }
 
 
-  
-// const additionalData = {
-//   check_in_date: '2023-09-25',
-//   check_out_date: '2023-09-27',
-//   Booking_Payment_Mode: 'Offline',
-//   Email_Address: 'amandecembersharma@gmail.com',
-//   Source_Id: '',
-//   MobileNo: '+918563919033',
-//   Address: '4/10 new mig w block keshav nagar',
-//   State: 'Uttar Pradesh',
-//   Country: 'India',
-//   City: 'Kanpur',
-//   Zipcode: '208014',
-//   Languagekey: 'en',
-//   paymenttypeunkid: ''
-// };
-
-const additionalData = {
-  check_in_date: req.body.check_in_date,
-  check_out_date: req.body.check_out_date,
-  Booking_Payment_Mode: req.body.Booking_Payment_Mode,
-  Email_Address: req.body.Email_Address,
-  Source_Id: req.body.Source_Id,
-  MobileNo: req.body.MobileNo,
-  Address: req.body.Address,
-  State: req.body.State,
-  Country: req.body.Country,
-  City: req.body.City,
-  Zipcode: req.body.Zipcode,
-  Languagekey: req.body.Languagekey,
-  paymenttypeunkid: req.body.paymenttypeunkid
-};
-
   const data1 = new ezze_booking_details({
-    Room:[{
-      Rateplan_Id :rooms.Rateplan_Id,
-      Ratetype_Id :rooms.Ratetype_Id,
-      Roomtype_Id :rooms.Roomtype_Id ,
-      baserate :rooms.baserate,
-      extradultrate :rooms.extradultrate,
-      extrachildrate :rooms.extrachildrate,
-      number_adults :rooms.number_adults,
-      number_children :rooms.number_children,
-      ExtraChild_Age :rooms.ExtraChild_Age,
-      Title :rooms.Title,
-      First_Name :rooms.First_Name,
-      Last_Name :rooms.Last_Name,
-      Gender :rooms.Gender,
-      SpecialRequest :rooms.SpecialRequest
+    Room: [{
+      Rateplan_Id: rooms.Rateplan_Id,
+      Ratetype_Id: rooms.Ratetype_Id,
+      Roomtype_Id: rooms.Roomtype_Id,
+      baserate: rooms.baserate,
+      extradultrate: rooms.extradultrate,
+      extrachildrate: rooms.extrachildrate,
+      number_adults: rooms.number_adults,
+      number_children: rooms.number_children,
+      ExtraChild_Age: rooms.ExtraChild_Age,
+      Title: rooms.Title,
+      First_Name: rooms.First_Name,
+      Last_Name: rooms.Last_Name,
+      Gender: rooms.Gender,
+      SpecialRequest: rooms.SpecialRequest
 
     }],
-
-    ///sab me req.body likhna h
-    check_in_date :req.body.check_in_date,
-    check_out_date :rooms.check_out_date,
-    Booking_Payment_Mode :rooms.Booking_Payment_Mode,
-    Email_Address :rooms. Email_Address,
-    Source_Id :rooms.Source_Id,
-    MobileNo  :rooms.MobileNo,
-    Address :rooms.Address ,
-    State :rooms.State,
-    Country  :rooms.Country,
-    City :rooms.City,
-    Zipcode  :rooms.Zipcode,
-    Languagekey  :rooms.Languagekey,
-    paymenttypeunkid :rooms.paymenttypeunkid
 
   })
 
@@ -158,7 +124,7 @@ const additionalData = {
     const roomKey = `Room_${index + 1}`;
     transformedRooms[roomKey] = room;
   });
-  
+
   // Create the final object by merging transformedRooms and additionalData
   const finalObject = { Room_Details: transformedRooms, ...additionalData };
 
@@ -217,11 +183,15 @@ const additionalData = {
       Inventory_Mode: responseData.Inventory_Mode,
       lang_key: responseData.lang_key,
     });
-    await savedata.save();
+    let successful_booking = await savedata.save();
     console.log("Response:", responseData);
-    return res.status(200).json({ responseData });
+    if (successful_booking) {
+      await Booking.updateOne({ booking_id: savedata.booking_id }, { $set: { booking_status: "ConfirmBooking" } })
+      return res.status(200).json({ responseData });
+    }
   } catch (error) {
     console.error("Error:", error);
+    await Booking.updateOne({ booking_id: savedata.booking_id }, { $set: { booking_status: "FailBooking" } })
     return res.status(500).json({ error: "Internal Server Error" });
   }
 
