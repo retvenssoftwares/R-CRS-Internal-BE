@@ -34,6 +34,9 @@ const check_inout_details = new mongoose.Schema({
   Zipcode: { type: String, required: false },
   Languagekey: { type: String, required: false },
   paymenttypeunkid: { type: String },
+  subReservation_no:[
+    {type: String}
+  ],
 
 })
 

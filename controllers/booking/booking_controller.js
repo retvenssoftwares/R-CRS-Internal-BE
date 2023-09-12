@@ -51,9 +51,10 @@ module.exports.create_booking = async (req, res) => {
     Zipcode,
     Languagekey,
     paymenttypeunkid,
-    // booking_id,
-    // ezee_reservation_no,
+
   } = req.body;
+
+  // additional data is use for preparing valid json for ezee
 
   const additionalData = {
     check_in_date: check_in_date,
@@ -107,21 +108,9 @@ module.exports.create_booking = async (req, res) => {
     }
   }
 
-  // const ezzeBookingDetailsArray = [];
+ 
 
-
-
-  // Now, the Room array within ezzeBookingDetails contains all the room details
-
-  // Now, the Rooms array contains the saved objects
-
-  // Now, ezzeBookingDetailsArray contains each ezze_booking_details object
-
-  // Now, ezzeBookingDetailsArray contains each room's details in the Room property
-
-  // await data1.save()
-  //console.log(rooms);
-
+  // this function will convert the rooms array into transformedRooms object
   const transformedRooms = {};
   rooms.forEach((room, index) => {
     const roomKey = `Room_${index + 1}`;
@@ -131,11 +120,10 @@ module.exports.create_booking = async (req, res) => {
   // Create the final object by merging transformedRooms and additionalData
   const finalObject = { Room_Details: transformedRooms, ...additionalData };
 
-  console.log(finalObject);
 
   const selectedHotel = await Hotel.findOne({ hotel_r_code: hotel_r_code });
 
-  //const data2 = {"Room_Details":{"Room_1":{"Rateplan_Id": "1872700000000000001","Ratetype_Id": "1872700000000000001","Roomtype_Id": "1872700000000000001","baserate":"2000,2000","extradultrate":"500,500","extrachildrate":"500,500","number_adults":"1","number_children":"0","ExtraChild_Age":"0","Title":"Mr","First_Name":"Aman","Last_Name":"Sharma","Gender":"Male","SpecialRequest":""}},"check_in_date":"2023-09-16","check_out_date":"2023-09-18","Booking_Payment_Mode":"Offline","Email_Address":"amandecembersharma@gmail.com","Source_Id":"","MobileNo":"+918563919033","Address":"4/10 new mig w block keshav nagar","State":"Uttar Pradesh","Country":"India","City":"Kanpur","Zipcode":"208014","Languagekey":"en","paymenttypeunkid":""}
+  
   const formData = new FormData();
   const stringBody = JSON.stringify(finalObject);
   formData.append("BookingData", stringBody);
@@ -185,6 +173,7 @@ module.exports.create_booking = async (req, res) => {
       reservation_number: responseData.ReservationNo,
       Inventory_Mode: responseData.Inventory_Mode,
       lang_key: responseData.lang_key,
+      subReservation_no : responseData.SubReservationNo
     });
     let successful_booking = await savedata.save();
     const ezzeBookingDetails = new ezze_booking_details({
@@ -220,12 +209,14 @@ module.exports.create_booking = async (req, res) => {
         Languagekey: Languagekey,
         paymenttypeunkid: paymenttypeunkid,
         booking_id : successful_booking.booking_id,
-        ezee_reservation_no : responseData.ReservationNo
+        ezee_reservation_no : responseData.ReservationNo,
+        subReservation_no : responseData.SubReservationNo
       },
     });
   
     await ezzeBookingDetails.save();
     console.log("Response:", responseData);
+
     if (successful_booking) {
       await Booking.updateOne(
         { booking_id: savedata.booking_id },
@@ -242,5 +233,5 @@ module.exports.create_booking = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 
-  //await data.save()
+  
 };

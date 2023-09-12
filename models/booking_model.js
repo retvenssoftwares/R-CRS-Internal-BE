@@ -166,6 +166,9 @@ const bookingSchema = mongoose.Schema({
     reservation_number: {
         type: String, default:''
     },
+    subReservation_no:[
+        {type: String}
+    ],
    
     booking_status:{
         type: String,
