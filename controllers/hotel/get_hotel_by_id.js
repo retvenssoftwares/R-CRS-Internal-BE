@@ -2,8 +2,8 @@ const Hotel = require("../../models/hotel_model");
 const axios = require('axios');
 
 module.exports.get_hotel_by_id = async (req, res) => {
-  const check_in_date = req.body.check_in_date;
-  const check_out_date = req.body.check_out_date;
+  const check_in_date = req.params.check_in_date;
+  const check_out_date = req.params.check_out_date;
 
   try {
     const data = await Hotel.findOne({ hotel_id: req.params.hotel_id })
