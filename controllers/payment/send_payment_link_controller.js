@@ -25,7 +25,8 @@ module.exports.send_payment_link_controller =  async (req, res) => {
       email_status,
       whatsapp_status
     } = req.body;
-    
+
+    // console.log(callback_url)
     const paymentLinkOptions = {
       amount: amount * 100, // Amount in paise
       currency,
@@ -46,7 +47,7 @@ module.exports.send_payment_link_controller =  async (req, res) => {
       notes: {
         policy_name: policy_name,
       },
-      callback_url,
+      callback_url: callback_url,
       callback_method: "get",
     };
 
