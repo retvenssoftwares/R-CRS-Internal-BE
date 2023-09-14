@@ -67,6 +67,18 @@ const bookingSchema = mongoose.Schema({
     //         }
     //     }
     // ],
+    arrival_date:{
+        type: String,
+        default:""
+    },
+    departure_date:{
+        type:String,
+        default:""
+    },
+    purpose_of_travel:{
+        type:String,
+        default:""
+    },
     guest_title:{
         type:String,
         default:""
@@ -155,6 +167,27 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+    caller_type:{
+        type:String,
+        default:""
+    },
+
+    call_back_time:{
+        type:String,
+        default:""
+    },     
+    call_back_date :{
+        type :String,
+        default:""
+    },
+    remark :{
+        type : String,
+        default:""
+    },
+    department:{
+        type : String,
+        default:""
+    },
     gst_number:{
         type:String,
         default:""
@@ -209,6 +242,8 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+        
+
 }, {timestamps:true})
 
 module.exports = mongoose.model('Booking', bookingSchema);

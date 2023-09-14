@@ -46,7 +46,7 @@ module.exports.send_payment_link_controller =  async (req, res) => {
       notes: {
         policy_name: policy_name,
       },
-      callback_url,
+      callback_url ,
       callback_method: "get",
     };
 
