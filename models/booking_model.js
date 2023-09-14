@@ -131,6 +131,10 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+    payment_link: {
+        type: String,
+        default:''
+    },
     billing_instructions:{
         type:String,
         default:""

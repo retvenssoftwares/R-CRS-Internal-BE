@@ -10,13 +10,16 @@ const razorpay = new Razorpay({
 
 
 // Define a route to create a payment link
-module.exports.send_payment_link_controller =  async (req, res) => {
+module.exports.send_payment_link_controller = async (req, res) => {
   try {
     const {
       amount,
       currency,
       description,
-      name,
+      first_name,
+      last_name,
+      address_line_1,
+      address_line_2,
       email,
       contact,
       callback_url,
@@ -25,7 +28,8 @@ module.exports.send_payment_link_controller =  async (req, res) => {
       email_status,
       whatsapp_status
     } = req.body;
-    
+
+    // console.log(callback_url)
     const paymentLinkOptions = {
       amount: amount * 100, // Amount in paise
       currency,
@@ -33,7 +37,10 @@ module.exports.send_payment_link_controller =  async (req, res) => {
       first_min_partial_amount: 0,
       description,
       customer: {
-        name,
+        first_name,
+        last_name,
+        address_line_1,
+        address_line_2,
         email,
         contact,
       },
@@ -46,7 +53,7 @@ module.exports.send_payment_link_controller =  async (req, res) => {
       notes: {
         policy_name: policy_name,
       },
-      callback_url,
+      callback_url: callback_url,
       callback_method: "get",
     };
 

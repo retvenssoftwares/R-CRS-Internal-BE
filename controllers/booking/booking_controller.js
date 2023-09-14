@@ -48,6 +48,7 @@ module.exports.create_booking = async (req, res) => {
     State,
     Country,
     City,
+    payment_link,
     Zipcode,
     Languagekey,
     paymenttypeunkid,
@@ -169,6 +170,7 @@ module.exports.create_booking = async (req, res) => {
       company_address,
       gst_number,
       guest_special_request,
+      payment_link,
       reservation_type,
       reservation_number: responseData.ReservationNo,
       Inventory_Mode: responseData.Inventory_Mode,
@@ -220,7 +222,7 @@ module.exports.create_booking = async (req, res) => {
     if (successful_booking) {
       await Booking.updateOne(
         { booking_id: savedata.booking_id },
-        { $set: { booking_status: "ConfirmBooking" } }
+        { $set: { booking_status: "PendingBooking" } }
       );
       return res.status(200).json({ responseData });
     }
