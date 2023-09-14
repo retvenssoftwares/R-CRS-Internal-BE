@@ -15,6 +15,10 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+    guest_id:{
+        type:String,
+        default:mongoose.Types.ObjectId
+    },
     // roomTypes: [
     //     {
     //         room_type:{
@@ -69,6 +73,10 @@ const bookingSchema = mongoose.Schema({
     // ],
     arrival_date:{
         type: String,
+        default:""
+    },
+    date_of_birth:{
+        type :String,
         default:""
     },
     departure_date:{
@@ -180,14 +188,11 @@ const bookingSchema = mongoose.Schema({
         default:""
     },
 
-    call_back_time:{
+    callback_date_time:{
         type:String,
         default:""
     },     
-    call_back_date :{
-        type :String,
-        default:""
-    },
+   
     salutation :{
         type:String,
         default:""
