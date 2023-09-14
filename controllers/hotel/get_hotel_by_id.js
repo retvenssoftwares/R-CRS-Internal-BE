@@ -2,8 +2,8 @@ const Hotel = require("../../models/hotel_model");
 const axios = require('axios');
 
 module.exports.get_hotel_by_id = async (req, res) => {
-  const check_in_date = req.body.check_in_date;
-  const check_out_date = req.body.check_out_date;
+  const check_in_date = req.params.check_in_date;
+  const check_out_date = req.params.check_out_date;
 
   try {
     const data = await Hotel.findOne({ hotel_id: req.params.hotel_id })
@@ -17,11 +17,13 @@ module.exports.get_hotel_by_id = async (req, res) => {
 
     const response = await axios.post(`https://live.ipms247.com/booking/reservation_api/listing.php?request_type=RoomList&HotelCode=${data.hotel_ezee_code}&APIKey=${data.hotel_ezee_auth_code}&check_in_date=${check_in_date}&check_out_date=${check_out_date}`);
     console.log(response.data)
-    const extractedData = response.data.map(({ Roomtype_Name, roomtypeunkid, min_ava_rooms }) => ({
+    const extractedData = await response.data.map(({ Roomtype_Name, roomtypeunkid, min_ava_rooms }) => ({
       Roomtype_Name,
       roomtypeunkid,
       min_ava_rooms
-    }));
+    })
+    );
+console.log(extractedData)
 
     // Filter the room details based on the conditions
     const filteredRoomDetails = data.room_details.map(roomDetail => {
@@ -43,6 +45,7 @@ module.exports.get_hotel_by_id = async (req, res) => {
       hotel_country: data.hotel_country,
       hotel_images: data.hotel_images,
       room_details: filteredRoomDetails, // Include filtered room details in the response
+      room_availability: extractedData,
       hotel_address_line_1: data.hotel_address_line_1,
       hotel_address_line_2: data.hotel_address_line_2,
       hotel_description: data.hotel_description
