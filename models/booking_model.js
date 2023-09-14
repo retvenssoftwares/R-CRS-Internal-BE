@@ -107,7 +107,11 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
-    guest_address:{
+    guest_address_1:{
+        type:String,
+        default:""
+    },
+    guest_address_2:{
         type:String,
         default:""
     },
@@ -184,6 +188,10 @@ const bookingSchema = mongoose.Schema({
         type :String,
         default:""
     },
+    salutation :{
+        type:String,
+        default:""
+    },
     remark :{
         type : String,
         default:""
@@ -232,6 +240,14 @@ const bookingSchema = mongoose.Schema({
     lang_key : {
         type:String,
         default :""
+    },
+    alternate_contact:{
+        type : String,
+        default:""
+    },
+    disposition :{
+        type : String,
+        default:""
     },
     business_source: {
         type:String,
