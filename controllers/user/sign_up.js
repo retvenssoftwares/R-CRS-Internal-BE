@@ -56,10 +56,18 @@ module.exports.login = async (req, res) => {
   }
 
   const userfound = await data.findOne({ userName: userName });
+  const details = {
+    userName : userfound.userName,
+    First_name : userfound.First_name,
+    Last_name : userfound.Last_name,
+    department : userfound.department
+
+  }
 
   if (!userfound) {
     return res.status(500).json({ msg: "user not found" });
   }
+  
 
   function decryptPassword(encryptedText) {
     const decipher = crypto.createDecipheriv(
@@ -73,36 +81,12 @@ module.exports.login = async (req, res) => {
   }
 
   const decryptedPassword = decryptPassword(userfound.password);
-  console.log(decryptedPassword);
+  
   if (decryptedPassword !== password) {
     return res.status(500).json({ msg: "enter valid password" });
   } else {
     return res
       .status(200)
-      .json({userfound});
+      .json({details , token :"login successfully"});
   }
 };
-// {
-//     "calls": [
-//       {
-//         "callId": "123456",
-//         "guest": {
-//           "id": "guest123",
-//           "name": "John Doe",
-//           "phoneNumber": "123-456-7890"
-//           // Add more guest information if needed
-//         },
-//         "agent": {
-//           "id": "agent456",
-//           "name": "Alice Smith",
-//           "profilePicUrl": "https://example.com/agent456.jpg"
-//           // Add more agent information if needed
-//         },
-//         "timestamp": "2023-09-13T12:00:00Z",
-//         "duration": "00:15:30",
-//         "callStatus": "completed"
-//         // Add more call details as necessary
-//       },
-//       // Add more call entries as needed
-//     ]
-//   }
