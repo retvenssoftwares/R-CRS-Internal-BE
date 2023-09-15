@@ -46,6 +46,8 @@ module.exports.sign_up = async (req, res) => {
     .json({ role: `${user}`});
 };
 
+
+
 module.exports.login = async (req, res) => {
   const { password, userName } = req.body;
 
@@ -75,11 +77,9 @@ module.exports.login = async (req, res) => {
   if (decryptedPassword !== password) {
     return res.status(500).json({ msg: "enter valid password" });
   } else {
-    const role = userfound.department[0].role;
-    
     return res
       .status(200)
-      .json({ role: `${role}`});
+      .json({userfound});
   }
 };
 // {
