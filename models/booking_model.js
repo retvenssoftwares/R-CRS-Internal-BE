@@ -15,6 +15,10 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+    guest_id:{
+        type:String,
+        default:mongoose.Types.ObjectId
+    },
     // roomTypes: [
     //     {
     //         room_type:{
@@ -67,6 +71,22 @@ const bookingSchema = mongoose.Schema({
     //         }
     //     }
     // ],
+    arrival_date:{
+        type: String,
+        default:""
+    },
+    date_of_birth:{
+        type :String,
+        default:""
+    },
+    departure_date:{
+        type:String,
+        default:""
+    },
+    purpose_of_travel:{
+        type:String,
+        default:""
+    },
     guest_title:{
         type:String,
         default:""
@@ -95,7 +115,11 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
-    guest_address:{
+    guest_address_1:{
+        type:String,
+        default:""
+    },
+    guest_address_2:{
         type:String,
         default:""
     },
@@ -159,6 +183,28 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+    caller_type:{
+        type:String,
+        default:""
+    },
+
+    callback_date_time:{
+        type:String,
+        default:""
+    },     
+   
+    salutation :{
+        type:String,
+        default:""
+    },
+    remark :{
+        type : String,
+        default:""
+    },
+    department:{
+        type : String,
+        default:""
+    },
     gst_number:{
         type:String,
         default:""
@@ -200,6 +246,14 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default :""
     },
+    alternate_contact:{
+        type : String,
+        default:""
+    },
+    disposition :{
+        type : String,
+        default:""
+    },
     business_source: {
         type:String,
         default:""
@@ -216,6 +270,8 @@ const bookingSchema = mongoose.Schema({
         type:String,
         default:""
     },
+        
+
 }, {timestamps:true})
 
 module.exports = mongoose.model('Booking', bookingSchema);

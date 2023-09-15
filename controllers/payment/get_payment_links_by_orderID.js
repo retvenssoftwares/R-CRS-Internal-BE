@@ -15,6 +15,7 @@ module.exports.get_payment_link_by_orderID_controller =  async (req, res) => {
   
       // Use the Razorpay SDK to fetch the payment order status
       const paymentOrder = await razorpay.paymentLink.fetch(orderId);
+      console.log(paymentOrder)
   
       res.json({ response: paymentOrder });
     } catch (error) {
