@@ -34,6 +34,7 @@ const top_hotel = require('./routers/hotel/top_eight_hotel_booking_router')
 const getallcity  = require('./routers/hotel/get_all_cities_hotels_router')
 const hotel_reports = require('./routers/hotel/get_hotel_reports_router');
 const get_guest_booking_details = require('./routers/booking/get_booking_guest_info_router')
+const userlogin = require('./routers/user/signup_router')
 
 
 //location
@@ -84,6 +85,7 @@ app.use('/api',countries)
 app.use('/api',state)
 app.use('/api',cities)
 app.use('/api',fetchcoutries)
+app.use('/api',userlogin)
 
 mongoose
     .connect(process.env.DATABASE, {
