@@ -30,6 +30,10 @@ module.exports.get_call_details = async(req,res)=>{
 
   const get_call = await data.find({type:type_of_call})
 
+  if(get_call === null){
+    return res.status(500).json({msg:'no data found'})
+  }
+
   if(!get_call){
     return res.status(500).json({msg:'data not found'})
   }

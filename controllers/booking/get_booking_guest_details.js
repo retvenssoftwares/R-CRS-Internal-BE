@@ -9,7 +9,11 @@ module.exports.getdata = async (req, res) => {
     if (guest) {
         res.status(200).send({ guest }) 
         
-    } 
+    }else{
+        return res.status(200).json({msg:"data not found"})
+    }
+
+
         
 }
 
