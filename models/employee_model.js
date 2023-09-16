@@ -3,15 +3,20 @@ const {ObjectId} = mongoose.Schema;
 const randomstring = require("randomstring")
 
 const employeeSchema = mongoose.Schema({
+    userName :{
+        type:String,
+        unique:true,
+        default:""
+    },
     employee_id : {
         type: String,
-        default: "",
-        unique:true
+        default: randomstring.generate(10),
+        //unique:true
     },
     first_name:{
         type:String,
         default :"",
-        required:true
+        required:false
     },
     last_name: {
         type:String,
@@ -19,46 +24,43 @@ const employeeSchema = mongoose.Schema({
     },
     gender:{
         type:String,
-        enum:[
-            "MALE", 
-            "FEMALE"
-        ],
-        required:true
+        required:false,
+        default:""
     },
-    role:{
-        type:String,
-        enum:[
-            'EMPLOYEE',
-            'ADMIN',
-            'SUPERADMIN'
-        ],
-        default:'EMPLOYEE'
-    },
-    date_of_joining: {
-        type: String,
-        required : true
-    },
+    department: [{
+        department_name:{type:String,default:"",require:true},
+        role: {
+          type: String,
+          default: "",
+          require: true,
+        },
+      }],
+    // date_of_joining: {
+    //     type: String,
+    //     required : true
+    // },
     phone_number:{
         type:String,
-        unique:true,
-        required:true,
+        unique:false,
+        required:false,
         max:15,
     },
-    isActive:{
-        type:Boolean,
-        default:false
-    },
+    // isActive:{
+    //     type:Boolean,
+    //     default:false
+    // },
     email:{
         type:String,
-        unique:true,
-        default:null,
-        required:true
+        unique:false,
+        default:"",
+        required:false
     },
     password:{
       type:String,
       min:4,
       max:100
-    }
+    },
+   
 },{ timestamps:true });
 
 module.exports = mongoose.model('Employee', employeeSchema);

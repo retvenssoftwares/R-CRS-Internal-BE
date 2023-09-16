@@ -35,6 +35,7 @@ const getallcity  = require('./routers/hotel/get_all_cities_hotels_router')
 const hotel_reports = require('./routers/hotel/get_hotel_reports_router');
 const get_guest_booking_details = require('./routers/booking/get_booking_guest_info_router')
 const userlogin = require('./routers/user/signup_router')
+const call_details = require("./routers/user/call_details_router")
 
 
 //location
@@ -78,6 +79,7 @@ app.use('/api',top_hotel)
 app.use('/api',getallcity)
 app.use('/api', hotel_reports)
 app.use('/api',get_guest_booking_details)
+app.use("/api",call_details)
 
 //location
 app.use('/api',location)

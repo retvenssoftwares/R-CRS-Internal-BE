@@ -2,12 +2,13 @@ const data = require("../../models/booking_model")
 
 module.exports.getdata = async (req, res) => {
 
-    const guest_mobile = req.query.guest_mobile_number
+    const guest_mobile = req.query.guest_mobile
     const guest = await data.findOne({ guest_mobile_number: guest_mobile })
 
 
-    if (!guest) {
+    if (guest) {
         res.status(200).send({ guest }) 
+        
     } 
         
 }

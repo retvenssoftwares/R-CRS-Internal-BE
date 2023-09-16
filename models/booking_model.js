@@ -188,6 +188,18 @@ const bookingSchema = mongoose.Schema({
         default:""
     },
 
+    guest_location:{
+        type:String,
+        default:""
+    },
+
+    calls_details:[{
+        call_id:{
+            type:String,
+            default:""
+        }
+    }],
+
     callback_date_time:{
         type:String,
         default:""
