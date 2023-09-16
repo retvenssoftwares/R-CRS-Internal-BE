@@ -75,7 +75,7 @@ const bookingSchema = mongoose.Schema({
         type: String,
         default:""
     },
-    date_of_birth:{
+    special_occasion:{
         type :String,
         default:""
     },

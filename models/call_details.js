@@ -9,14 +9,16 @@ const call = new mongoose.Schema({
   calls_details: [
     {
       guest_id: { type: String, default: "" },
-
       employee_id: { type: String, default: "" },
-
+      employee_status :{type:String , default:""},
       call_starting_duration: { type: String, default: "" },
       call_ending_duration: { type: String, default: "" },
       type: { type: String, default: "" },
       dial_status: { type: String, defaut: "" },
       last_support_by: { type: String, default: "" },
+      hang_up_by:{type:String , default:""},
+      guest_status :{type:String , default :""},
+      comments : {type:String , default :""}
     },
   ],
 });
