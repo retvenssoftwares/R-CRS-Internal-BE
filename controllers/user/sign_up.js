@@ -27,10 +27,10 @@ module.exports.sign_up = async (req, res) => {
   const savedata = new data({
     userName: req.body.userName,
     first_name: req.body.First_name,
-    gender : req.body.gender,
-    phone_number:req.body.phone_number,
+    gender: req.body.gender,
+    phone_number: req.body.phone_number,
     last_name: req.body.Last_name,
-    email:req.body.email,
+    email: req.body.email,
     password: encryptedpassword,
     department: req.body.department,
   });
@@ -42,11 +42,10 @@ module.exports.sign_up = async (req, res) => {
   }
 
   await savedata.save();
- 
- 
+
   return res
     .status(200)
-    .json({savedata, token:"employee added successfully"});
+    .json({ savedata, token: "employee added successfully" });
 };
 
 
@@ -54,17 +53,19 @@ module.exports.sign_up = async (req, res) => {
 module.exports.login = async (req, res) => {
   const { password, userName } = req.body;
 
-  if (userName === "SuperAdmin" && password === "SuperAdmin") {
-    return res.json({ role: "SuperAdmin" });
-  }
-
   const userfound = await data.findOne({ userName: userName });
- 
+  console.log(userfound)
+
   if (!userfound) {
     return res.status(500).json({ msg: "user not found" });
-  }else{
+  } else {
 
-    function decryptPassword(encryptedText) {
+    const details = userfound;
+    if (userName === "SuperAdmin" && password === "SuperAdmin") {
+      return res.json({ details, token: "login successfully " });
+      
+    } else {
+      function decryptPassword(encryptedText) {
         const decipher = crypto.createDecipheriv(
           "aes-256-cbc",
           Buffer.from(key, "hex"),
@@ -74,28 +75,22 @@ module.exports.login = async (req, res) => {
         decrypted += decipher.final("utf8");
         return decrypted;
       }
-    
+
       const decryptedPassword = decryptPassword(userfound.password);
-      
+
       if (decryptedPassword !== password) {
         return res.status(500).json({ msg: "enter valid password" });
       }
       const details = {
-        userName : userfound.userName,
-        gender:userfound.gender,
-        employee_id:userfound.employee_id,
-        phone_number:userfound.phone_number,
-        first_name : userfound.first_name,
-        last_name : userfound.last_name,
-        department : userfound.department
-    
-      }
-        return res
-          .status(200)
-          .json({details , token :"login successfully"});
-    
-    
+        userName: userfound.userName,
+        gender: userfound.gender,
+        employee_id: userfound.employee_id,
+        phone_number: userfound.phone_number,
+        first_name: userfound.first_name,
+        last_name: userfound.last_name,
+        department: userfound.department,
+      };
+      return res.status(200).json({ details, token: "login successfully" });
+    }
   }
-  
-  
 };
