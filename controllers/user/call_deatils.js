@@ -52,6 +52,8 @@ module.exports.get_call_details = async (req, res) => {
   });
 
   
+
+  
   const get_guest_detals = await guest_details.findOne({ guest_id: guest_id });
   const employee_data = await employee.findOne({ employee_id: employee_id });
 

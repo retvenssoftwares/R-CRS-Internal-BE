@@ -262,10 +262,10 @@ const bookingSchema = mongoose.Schema({
         type : String,
         default:""
     },
-    disposition :{
-        type : String,
-        default:""
-    },
+    // disposition :{
+    //     type : String,
+    //     default:""
+    // },
     business_source: {
         type:String,
         default:""
