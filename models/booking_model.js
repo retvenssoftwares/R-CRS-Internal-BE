@@ -246,6 +246,11 @@ const bookingSchema = mongoose.Schema({
         type: String,
         default:''
     },
+
+    hotel_id:{
+        type:String,
+        default:""
+    },
     booking_source: {
         type:String,
         default:""

@@ -14,6 +14,7 @@ const call = new mongoose.Schema({
       start_time: { type: String, default: "" },
       disposition :{type: String, default: ""},
       end_time: { type: String, default: "" },
+      hotel_id:{type:String , default:""},
       time_to_answer:{type: String, default: ""},
       talktime :{type: String, default: ""},
       type: { type: String, default: "" },

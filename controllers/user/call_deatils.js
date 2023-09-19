@@ -40,7 +40,7 @@ module.exports.post_call_details = async (req, res) => {
 
 
 
-
+// type of call by guest_id and employee_Id
 module.exports.get_call_details = async (req, res) => {
   const type_of_call = req.params.type_of_call;
   const { guest_id, employee_id } = req.body;
@@ -72,6 +72,7 @@ module.exports.get_call_details = async (req, res) => {
   const details = {
     guest_first_name: get_guest_detals.guest_first_name,
     guest_last_name: get_guest_detals.guest_last_name,
+    //guest_mobile_number : get_guest_detals.guest_mobile_number,
     guest_location: get_guest_detals.guest_location,
     caller_type: get_guest_detals.caller_type,
     callback_date_time: get_guest_detals.callback_date_time,
@@ -86,3 +87,44 @@ module.exports.get_call_details = async (req, res) => {
   };
   return res.status(200).json({ details });
 };
+
+
+
+ // Import the Mongoose model
+
+ //const guest_details = require('../../models/guest_details_model'); // Import the Mongoose model
+
+ module.exports.getCallDetailsByMobileNumber = async (req, res) => {
+   try {
+     const { guest_mobile_number } = req.params;
+ 
+     // Step 1: Find the guest_id based on the provided guest_mobile_number
+     const guest = await guest_details.findOne({ 'guest_mobile_number': guest_mobile_number });
+ 
+     if (!guest) {
+       return res.status(404).json({ message: 'Guest not found' });
+     }
+ 
+     const guest_id = guest.guest_id;
+     console.log(guest_id)
+ 
+     const call_data = await data.findOne({ 'calls_details.guest_id': guest_id })
+
+     console.log(call_data)
+     // Step 2: Use guest_id to filter the records in the calls_details array
+     if (!call_data || !call_data.calls_details) {
+      return res.status(404).json({ message: 'Call details not found' });
+    }
+
+    // Step 3: Filter the call details by guest_id
+    const callDetails = call_data.calls_details.filter(call => call.guest_id === guest_id);
+
+ 
+     // Step 3: Return the filtered callDetails
+     return res.status(200).json({ callDetails });
+   } catch (error) {
+     console.error('Error fetching call details by mobile number:', error);
+     return res.status(500).json({ error: 'Internal Server Error' });
+   }
+ };
+ 

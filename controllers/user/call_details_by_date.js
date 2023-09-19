@@ -83,7 +83,7 @@ module.exports.get_disposition = async (req, res) => {
   }
 };
 
-///  get all call
+///  get all type of call count
 
 module.exports.get_calls = async (req, res) => {
   try {
@@ -118,7 +118,7 @@ module.exports.get_calls = async (req, res) => {
 
 
 
-// inbound and outbounds calls
+// inbound and outbounds calls details 
 
 module.exports.get_inbound_calls_and_outbounds_callDetails = async (req, res) => {
   try {
@@ -155,6 +155,8 @@ module.exports.get_inbound_calls_and_outbounds_callDetails = async (req, res) =>
 };
 
 
+
+// top five disposition
 
 module.exports.getTop5Dispositions = async (req, res) => {
   try {
@@ -195,43 +197,79 @@ module.exports.getTop5Dispositions = async (req, res) => {
   }
 };
 
-// get total call in a week
-
+// get total call in a week with higest disposition 
 module.exports.total_calls_in_week = async (req, res) => {
   try {
     // Parse the input date from the query parameter (assuming the date is in 'DD-MM-YYYY' format)
     const inputDate = req.query.inputDate;
     const momentInputDate = moment(inputDate, 'DD-MM-YYYY'); // Parse the input date with the correct format
 
-    // Subtract 7 days from the input date to calculate the formattedEndDate
-    const momentFormattedEndDate = momentInputDate.clone().subtract(7, 'days');
+    const results = [];
 
-    // Format the input date and formattedEndDate back to 'DD-MM-YYYY' format
-    const formattedInputDate = momentInputDate.format('DD-MM-YYYY');
-    const formattedEndDate = momentFormattedEndDate.format('DD-MM-YYYY');
+    // Loop through each day within the last 7 days
+    for (let i = 0; i < 7; i++) {
+      const startDate = momentInputDate.clone().subtract(i, 'days').startOf('day').format('DD-MM-YYYY');
+      const endDate = momentInputDate.clone().subtract(i, 'days').endOf('day').format('DD-MM-YYYY');
 
-    // Find call details within the date range and filter out records outside the range
-    const callDetails = await CallDetails.aggregate([
-      {
-        $unwind: '$calls_details'
-      },
-      {
-        $match: {
-          'calls_details.call_date': {
-            $gte: formattedEndDate, // Greater than or equal to the formattedEndDate
-            $lte: formattedInputDate, // Less than or equal to the formattedInputDate
+      // Aggregate to count calls within the date range
+      const dispositionCounts = await CallDetails.aggregate([
+        {
+          $unwind: '$calls_details'
+        },
+        {
+          $match: {
+            'calls_details.call_date': {
+              $gte: startDate,
+              $lte: endDate
+            }
           }
+        },
+        {
+          $group: {
+            _id: '$calls_details.disposition',
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { count: -1 } // Sort by count in descending order
+        },
+        {
+          $limit: 1 // Limit to the top disposition
         }
-      }
-    ]);
+      ]);
 
-    const totalRecords = callDetails.length;
+      // Get the highest disposition name and count
+      const highestDisposition = dispositionCounts.length > 0 ? {
+        disposition: dispositionCounts[0]._id,
+        count: dispositionCounts[0].count
+      } : { disposition: '', count: 0 };
 
-    return res.status(200).json({ totalRecords });
+      // Aggregate to count total calls within the date range
+      const callCount = await CallDetails.aggregate([
+        {
+          $unwind: '$calls_details'
+        },
+        {
+          $match: {
+            'calls_details.call_date': {
+              $gte: startDate,
+              $lte: endDate
+            }
+          }
+        },
+        {
+          $count: 'total'
+        }
+      ]);
+
+      const totalRecords = callCount.length > 0 ? callCount[0].total : 0;
+      
+      results.push({ date: startDate, totalRecords, highestDisposition });
+    }
+
+    return res.status(200).json({ results });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
-
