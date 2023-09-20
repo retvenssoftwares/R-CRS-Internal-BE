@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
   }
 };
 
-// get_call_by_role_and_employee_id
+// get_guest_by_role_and_employee_id
 module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
   try {
     const { role, employee_id } = req.body;
@@ -69,6 +69,38 @@ module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
+//role wise call details
+
+module.exports.get_call_by_role_emp_id = async (req, res) => {
+  try {
+    const { role, employee_id } = req.body;
+
+    if (!role && !employee_id) {
+      return res.status(500).json({ message: "Enter valid details" });
+    }
+
+    if (role === "Admin" || role === "admin") {
+      const guest_data = await EmployeeModel.find({});
+      guest_data.reverse(); // Reverse the order of the array
+
+      return res.status(200).json({ guest_data });
+    } else {
+      if (employee_id) {
+        const guest_info = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
+        guest_info.reverse(); // Reverse the order of the array
+
+        return res.status(200).json({ guest_info });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 
 // get all type of call count by employee_id
 module.exports.get_employee_calls = async (req, res) => {

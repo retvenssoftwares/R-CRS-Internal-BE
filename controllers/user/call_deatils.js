@@ -97,7 +97,7 @@ module.exports.get_call_details = async (req, res) => {
 //const guest_details = require('../../models/guest_details_model'); // Import the Mongoose model
 module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {
   try {
-    const { guest_mobile } = req.params;
+    const { guest_mobile, callDate, hotelName, disposition } = req.params;
 
     // Find the guest based on the provided parameter(s)
     const guest = await guest_details.findOne({
@@ -247,32 +247,3 @@ module.exports.get_details_by_disposition = async (req, res) => {
 
 
 
-module.exports.get_all_call_by_parameter = async(req,res)=>{
-  const { param } = req.params;
-
-  switch (param) {
-    case "guest_mobile":
-      // Handle disposition functionality
-      call_details_date.get_disposition(req, res);
-      break;
-    case "all_calls":
-      // Handle getting all calls functionality
-      call_details_date.get_calls(req, res);
-      break;
-    case "inbound_outbound":
-      // Handle getting inbound and outbound calls functionality
-      call_details_date.get_inbound_calls_and_outbounds_callDetails(req, res);
-      break;
-    case "top_dispositions":
-      // Handle getting top 5 dispositions functionality
-      call_details_date.getTop5Dispositions(req, res);
-      break;
-    case "weekend_calls":
-      // Handle getting weekend call details functionality
-      call_details_date.total_calls_in_week(req, res);
-      break;
-    default:
-      // Handle invalid parameter
-      res.status(400).json({ message: "Invalid parameter" });
-  }
-};
