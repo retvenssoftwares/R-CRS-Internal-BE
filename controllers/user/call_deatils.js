@@ -3,6 +3,12 @@ const guest_details = require("../../models/booking_model");
 const employee = require("../../models/employee_model");
 const randomstring = require("randomstring");
 
+
+module.exports.get_call_collection = async(req,res)=>{
+  const details_of_calls = await data.find({})
+  return res.status(200).json({details_of_calls})
+}
+
 module.exports.post_call_details = async (req, res) => {
   const add = new data({
     call_id: randomstring.generate(10),
@@ -19,12 +25,10 @@ module.exports.post_call_details = async (req, res) => {
       // If a guest_call record exists, push 'add' data into calls_details array
       guest_call.calls_details.unshift(add.calls_details[0]);
       await guest_call.save();
-      return res
-        .status(200)
-        .json({
-          guest_call,
-          token: "Data added to existing record successfully",
-        });
+      return res.status(200).json({
+        guest_call,
+        token: "Data added to existing record successfully",
+      });
     } else {
       const adddata = await add.save();
       const user = await guest_details.findOne({
@@ -97,12 +101,15 @@ module.exports.get_call_details = async (req, res) => {
 //const guest_details = require('../../models/guest_details_model'); // Import the Mongoose model
 module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {
   try {
-    const { guest_mobile, callDate, hotelName, disposition } = req.params;
+    const { guest_mobile, date, hotelName, disposition } = req.params;
 
-    // Find the guest based on the provided parameter(s)
+    // Create an object to store the filter criteria based on provided parameters
+   
+
     const guest = await guest_details.findOne({
-      guest_mobile_number: guest_mobile,
+      guest_mobile_number:  guest_mobile,
     });
+    //console.log(guest)
 
     if (!guest) {
       return res.status(404).json({ message: "Guest not found" });
@@ -110,26 +117,32 @@ module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {
 
     const guest_id = guest.guest_id;
 
-    // Find all records where the guest_id matches
-    const details = await data.findOne({ "calls_details.guest_id": guest_id });
+    //const call_date = guest_id.calls_details.call_date
+   
+    const details = await data.findOne({
+      'calls_details.guest_id': guest_id,
+      'calls_details.call_date': date,
+      'calls_details.call_date': { $ne: '' }, // Exclude empty call_date
+    });
+
+  
+
+    // Find all records where the guest_id matches and call_date matches (if provided)
 
     if (!details || details.length === 0) {
       return res.status(404).json({ message: "Call details not found" });
     }
 
     const matchingCallDetails = details.calls_details;
-    
+
     return res.status(200).json({ matchingCallDetails });
-
-
   } catch (error) {
     console.error("Error fetching call details:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-
-// get by date call details 
+// get by date call details
 
 module.exports.get_details_by_date = async (req, res) => {
   try {
@@ -158,7 +171,9 @@ module.exports.get_details_by_date = async (req, res) => {
     });
 
     if (matchingCallDetails.length === 0) {
-      return res.status(404).json({ message: "No matching call details found" });
+      return res
+        .status(404)
+        .json({ message: "No matching call details found" });
     }
 
     return res.status(200).json({ matchingCallDetails });
@@ -167,7 +182,6 @@ module.exports.get_details_by_date = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 //get by hotel
 module.exports.get_details_by_hotel_name = async (req, res) => {
@@ -197,7 +211,9 @@ module.exports.get_details_by_hotel_name = async (req, res) => {
     });
 
     if (matchingCallDetails.length === 0) {
-      return res.status(404).json({ message: "No matching call details found" });
+      return res
+        .status(404)
+        .json({ message: "No matching call details found" });
     }
 
     return res.status(200).json({ matchingCallDetails });
@@ -235,7 +251,9 @@ module.exports.get_details_by_disposition = async (req, res) => {
     });
 
     if (matchingCallDetails.length === 0) {
-      return res.status(404).json({ message: "No matching call details found" });
+      return res
+        .status(404)
+        .json({ message: "No matching call details found" });
     }
 
     return res.status(200).json({ matchingCallDetails });
@@ -244,6 +262,3 @@ module.exports.get_details_by_disposition = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
-

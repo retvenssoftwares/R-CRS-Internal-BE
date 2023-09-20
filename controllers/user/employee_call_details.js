@@ -1,5 +1,6 @@
 const EmployeeModel = require('../../models/call_details'); // Import your Mongoose model
 const employee_guest = require('../../models/booking_model')
+const employee_model = require('../../models/employee_model')
 const moment = require('moment')
 
 //get call details by employee_id
@@ -41,6 +42,14 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+// all employee
+
+module.exports.get_all_employee = async(req,res)=>{
+  const get_all_employee = await employee_model.find({})
+  return res.status(200).json({get_all_employee})
+}
 
 // get_guest_by_role_and_employee_id
 module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
