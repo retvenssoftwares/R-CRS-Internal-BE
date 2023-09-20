@@ -7,5 +7,17 @@ const call_details = require("../../controllers/user/call_deatils");
 router.post("/addcall",  call_details.post_call_details);
 
 router.post('/get_all_details/:type_of_call', call_details.get_call_details)
-router.get('/get_info/:guest_mobile_number',call_details.getCallDetailsByMobileNumber)
+// Route for finding records by guest_mobile
+router.get('/get_info_by_mobile/:guest_mobile', call_details.getCallDetails_by_guest_mobile_number);
+
+// Route for finding records by date
+router.get('/get_info_by_date/:date', call_details.get_details_by_date);
+
+// Route for finding records by hotel_name
+router.get('/get_info_by_hotel_name/:hotel_name', call_details.get_details_by_hotel_name);
+
+// Route for finding records by disposition
+router.get('/get_info_disposition/:disposition', call_details.get_details_by_disposition );
+
+
 module.exports = router;

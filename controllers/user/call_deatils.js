@@ -1,9 +1,11 @@
 const data = require("../../models/call_details");
 const guest_details = require("../../models/booking_model");
-const employee = require('../../models/employee_model')
+const employee = require("../../models/employee_model");
+const randomstring = require("randomstring");
 
 module.exports.post_call_details = async (req, res) => {
   const add = new data({
+    call_id: randomstring.generate(10),
     device_type: req.body.device_type,
     calls_details: req.body.calls_details,
   });
@@ -17,7 +19,12 @@ module.exports.post_call_details = async (req, res) => {
       // If a guest_call record exists, push 'add' data into calls_details array
       guest_call.calls_details.unshift(add.calls_details[0]);
       await guest_call.save();
-      return res.status(200).json({ guest_call, token: "Data added to existing record successfully" });
+      return res
+        .status(200)
+        .json({
+          guest_call,
+          token: "Data added to existing record successfully",
+        });
     } else {
       const adddata = await add.save();
       const user = await guest_details.findOne({
@@ -30,15 +37,15 @@ module.exports.post_call_details = async (req, res) => {
 
       user.calls_details.unshift({ call_id: adddata.call_id });
       await user.save();
-      return res.status(200).json({ adddata, token: "New data record added successfully" });
+      return res
+        .status(200)
+        .json({ adddata, token: "New data record added successfully" });
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ msg: "Internal server error" });
   }
 };
-
-
 
 // type of call by guest_id and employee_Id
 module.exports.get_call_details = async (req, res) => {
@@ -51,9 +58,6 @@ module.exports.get_call_details = async (req, res) => {
     },
   });
 
-  
-
-  
   const get_guest_detals = await guest_details.findOne({ guest_id: guest_id });
   const employee_data = await employee.findOne({ employee_id: employee_id });
 
@@ -88,43 +92,187 @@ module.exports.get_call_details = async (req, res) => {
   return res.status(200).json({ details });
 };
 
+// Import the Mongoose model
 
+//const guest_details = require('../../models/guest_details_model'); // Import the Mongoose model
+module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {
+  try {
+    const { guest_mobile } = req.params;
 
- // Import the Mongoose model
+    // Find the guest based on the provided parameter(s)
+    const guest = await guest_details.findOne({
+      guest_mobile_number: guest_mobile,
+    });
 
- //const guest_details = require('../../models/guest_details_model'); // Import the Mongoose model
-
- module.exports.getCallDetailsByMobileNumber = async (req, res) => {
-   try {
-     const { guest_mobile_number } = req.params;
- 
-     // Step 1: Find the guest_id based on the provided guest_mobile_number
-     const guest = await guest_details.findOne({ 'guest_mobile_number': guest_mobile_number });
- 
-     if (!guest) {
-       return res.status(404).json({ message: 'Guest not found' });
-     }
- 
-     const guest_id = guest.guest_id;
-     console.log(guest_id)
- 
-     const call_data = await data.findOne({ 'calls_details.guest_id': guest_id })
-
-     console.log(call_data)
-     // Step 2: Use guest_id to filter the records in the calls_details array
-     if (!call_data || !call_data.calls_details) {
-      return res.status(404).json({ message: 'Call details not found' });
+    if (!guest) {
+      return res.status(404).json({ message: "Guest not found" });
     }
 
-    // Step 3: Filter the call details by guest_id
-    const callDetails = call_data.calls_details.filter(call => call.guest_id === guest_id);
+    const guest_id = guest.guest_id;
 
- 
-     // Step 3: Return the filtered callDetails
-     return res.status(200).json({ callDetails });
-   } catch (error) {
-     console.error('Error fetching call details by mobile number:', error);
-     return res.status(500).json({ error: 'Internal Server Error' });
-   }
- };
- 
+    // Find all records where the guest_id matches
+    const details = await data.findOne({ "calls_details.guest_id": guest_id });
+
+    if (!details || details.length === 0) {
+      return res.status(404).json({ message: "Call details not found" });
+    }
+
+    const matchingCallDetails = details.calls_details;
+    
+    return res.status(200).json({ matchingCallDetails });
+
+
+  } catch (error) {
+    console.error("Error fetching call details:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+// get by date call details 
+
+module.exports.get_details_by_date = async (req, res) => {
+  try {
+    const callDate = req.params.date;
+
+    // Find all records in the data collection
+    const records = await data.find();
+
+    if (!records || records.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+
+    // Initialize an array to store matching call details
+    const matchingCallDetails = [];
+
+    // Iterate through each record and filter call details by call_date
+    records.forEach((record) => {
+      const filteredCallDetails = record.calls_details.filter(
+        (callDetail) => callDetail.call_date === callDate
+      );
+
+      // If filtered call details are found, concatenate them to matchingCallDetails
+      if (filteredCallDetails.length > 0) {
+        matchingCallDetails.push(...filteredCallDetails);
+      }
+    });
+
+    if (matchingCallDetails.length === 0) {
+      return res.status(404).json({ message: "No matching call details found" });
+    }
+
+    return res.status(200).json({ matchingCallDetails });
+  } catch (error) {
+    console.error("Error fetching call details:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+//get by hotel
+module.exports.get_details_by_hotel_name = async (req, res) => {
+  try {
+    const hotelName = req.params.hotel_name;
+
+    // Find all records in the data collection
+    const records = await data.find();
+
+    if (!records || records.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+
+    // Initialize an array to store matching call details
+    const matchingCallDetails = [];
+
+    // Iterate through each record and filter call details by hotel_name
+    records.forEach((record) => {
+      const filteredCallDetails = record.calls_details.filter(
+        (callDetail) => callDetail.hotel_name === hotelName
+      );
+
+      // If filtered call details are found, concatenate them to matchingCallDetails
+      if (filteredCallDetails.length > 0) {
+        matchingCallDetails.push(...filteredCallDetails);
+      }
+    });
+
+    if (matchingCallDetails.length === 0) {
+      return res.status(404).json({ message: "No matching call details found" });
+    }
+
+    return res.status(200).json({ matchingCallDetails });
+  } catch (error) {
+    console.error("Error fetching call details:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// get by disposition
+module.exports.get_details_by_disposition = async (req, res) => {
+  try {
+    const disposition = req.params.disposition;
+
+    // Find all records in the data collection
+    const records = await data.find();
+
+    if (!records || records.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+
+    // Initialize an array to store matching call details
+    const matchingCallDetails = [];
+
+    // Iterate through each record and filter call details by disposition
+    records.forEach((record) => {
+      const filteredCallDetails = record.calls_details.filter(
+        (callDetail) => callDetail.disposition === disposition
+      );
+
+      // If filtered call details are found, concatenate them to matchingCallDetails
+      if (filteredCallDetails.length > 0) {
+        matchingCallDetails.push(...filteredCallDetails);
+      }
+    });
+
+    if (matchingCallDetails.length === 0) {
+      return res.status(404).json({ message: "No matching call details found" });
+    }
+
+    return res.status(200).json({ matchingCallDetails });
+  } catch (error) {
+    console.error("Error fetching call details:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+module.exports.get_all_call_by_parameter = async(req,res)=>{
+  const { param } = req.params;
+
+  switch (param) {
+    case "guest_mobile":
+      // Handle disposition functionality
+      call_details_date.get_disposition(req, res);
+      break;
+    case "all_calls":
+      // Handle getting all calls functionality
+      call_details_date.get_calls(req, res);
+      break;
+    case "inbound_outbound":
+      // Handle getting inbound and outbound calls functionality
+      call_details_date.get_inbound_calls_and_outbounds_callDetails(req, res);
+      break;
+    case "top_dispositions":
+      // Handle getting top 5 dispositions functionality
+      call_details_date.getTop5Dispositions(req, res);
+      break;
+    case "weekend_calls":
+      // Handle getting weekend call details functionality
+      call_details_date.total_calls_in_week(req, res);
+      break;
+    default:
+      // Handle invalid parameter
+      res.status(400).json({ message: "Invalid parameter" });
+  }
+};

@@ -75,6 +75,10 @@ module.exports.get_employee_calls = async (req, res) => {
   try {
     const employeeId = req.params.employeeId; // Assuming the employee ID is passed as a route parameter
 
+    if(employeeId){
+      return res.status(500).json({ error: "Not Found" });
+    }
+
     let totalInboundCalls = 0;
     let totalOutboundCalls = 0;
     let totalCalls = 0;

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const randomstring = require("randomstring");
 
 const call = new mongoose.Schema({
-  call_id: { type: String, default: randomstring.generate(10) },
+  call_id: { type: String, default: "" },
 
 
   calls_details: [
@@ -14,7 +14,10 @@ const call = new mongoose.Schema({
       start_time: { type: String, default: "" },
       disposition :{type: String, default: ""},
       end_time: { type: String, default: "" },
-      hotel_id:{type:String , default:""},
+      hotel_name: {
+        type: String,
+        default:''
+    },
       time_to_answer:{type: String, default: ""},
       talktime :{type: String, default: ""},
       type: { type: String, default: "" },
