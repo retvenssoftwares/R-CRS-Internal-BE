@@ -82,16 +82,16 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
     }
 
     if (role === "Admin" || role === "admin") {
-      const guest_data = await EmployeeModel.find({});
-      guest_data.reverse(); // Reverse the order of the array
+      const call_data = await EmployeeModel.find({});
+      call_data.reverse(); // Reverse the order of the array
 
       return res.status(200).json({ guest_data });
     } else {
       if (employee_id) {
-        const guest_info = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
-        guest_info.reverse(); // Reverse the order of the array
+        const call_info = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
+        call_info.reverse(); // Reverse the order of the array
 
-        return res.status(200).json({ guest_info });
+        return res.status(200).json({ call_info });
       }
     }
   } catch (error) {
