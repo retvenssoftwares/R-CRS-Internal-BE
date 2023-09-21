@@ -2,6 +2,8 @@ const EmployeeModel = require('../../models/call_details'); // Import your Mongo
 const employee_guest = require('../../models/booking_model')
 const employee_model = require('../../models/employee_model')
 const moment = require('moment')
+const { format } = require('date-fns');
+
 
 //get call details by employee_id
 module.exports = async (req, res) => {
@@ -44,11 +46,57 @@ module.exports = async (req, res) => {
 };
 
 
+//get call of emp by date
+
+// module.exports.get_all_calls = async (req, res) => {
+//   try {
+//     const { date, employeeId } = req.query;
+//     console.log(date);
+
+//     const formattedDate = date.replace(/\//g, "-");
+
+//     // Query the database to find EmployeeModel objects with the specified employeeId
+//     const employees = await EmployeeModel.find({
+//       "calls_details.employee_id": employeeId,
+//     });
+
+//     if (!employees || employees.length === 0) {
+//       return res.json({ totalCalls: 0 }); // No matching employees found
+//     }
+
+//     // Initialize a variable to count the total calls
+//     let totalCalls = 0;
+
+//     // Iterate through each employee's calls_details and count the matching calls
+//     employees.forEach((employee) => {
+//       const callsForDate = employee.calls_details.filter((call) => {
+//         return call.call_date === formattedDate;
+//       });
+
+//       // Add the count of matching calls for this employee to the total count
+//       totalCalls += callsForDate.length;
+//     });
+
+//     res.json({ totalCalls });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+
+
+
 // all employee
 
 module.exports.get_all_employee = async(req,res)=>{
-  const get_all_employee = await employee_model.find({})
-  return res.status(200).json({get_all_employee})
+  if(req.body.role === "Admin"){
+    const get_all_employee = await employee_model.find({})
+    return res.status(200).json({get_all_employee})
+  }else{
+    return res.status(500).json({message:"you are not authroized to see employee details"})
+  }
+ 
 }
 
 // get_guest_by_role_and_employee_id
@@ -82,27 +130,46 @@ module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
 
 //role wise call details
 
+
+
 module.exports.get_call_by_role_emp_id = async (req, res) => {
   try {
     const { role, employee_id } = req.body;
 
-    if (!role && !employee_id) {
-      return res.status(500).json({ message: "Enter valid details" });
-    }
+    let call_data;
 
     if (role === "Admin" || role === "admin") {
-      const call_data = await EmployeeModel.find({});
-      call_data.reverse(); // Reverse the order of the array
-
-      return res.status(200).json({ guest_data });
+      const inboundCalls = [];
+      const outboundCalls = [];
+    
+      call_data = await EmployeeModel.find({});
+      call_data.reverse();
+    
+      call_data.forEach((call) => {
+        call.calls_details.forEach((callDetail) => {
+          if (callDetail.type === "inbound") {
+            inboundCalls.push(callDetail);
+          } else if (callDetail.type === "outbound") {
+            outboundCalls.push(callDetail);
+          }
+        });
+      });
+    
+      return res.status(200).json({ inboundCalls, outboundCalls });
+    } else if (employee_id) {
+      call_data = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
+      call_data.reverse();
+      const allCalls = call_data.reduce((accumulator, currentValue) => {
+        return accumulator.concat(currentValue.calls_details);
+      }, []);
+  
+      return res.status(200).json({ call_info: allCalls });
     } else {
-      if (employee_id) {
-        const call_info = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
-        call_info.reverse(); // Reverse the order of the array
-
-        return res.status(200).json({ call_info });
-      }
+      return res.status(400).json({ message: "Enter a valid role or employee_id" });
     }
+
+    //Flatten all call records into a single array
+   
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -111,18 +178,25 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
 
 
 
+
 // get all type of call count by employee_id
 module.exports.get_employee_calls = async (req, res) => {
   try {
     const employeeId = req.params.employeeId; // Assuming the employee ID is passed as a route parameter
 
-    if(employeeId){
+    if(!employeeId){
       return res.status(500).json({ error: "Not Found" });
     }
 
     let totalInboundCalls = 0;
     let totalOutboundCalls = 0;
     let totalCalls = 0;
+    let totalTodayCalls = 0
+
+    const currentDate = new Date();
+    const formattedDate = format(currentDate, 'dd-MM-yyyy');
+
+
 
     const allCalls = await EmployeeModel.find({});
 
@@ -134,6 +208,9 @@ module.exports.get_employee_calls = async (req, res) => {
           } else if (callDetail.type === "outbound") {
             totalOutboundCalls++;
           }
+          if (callDetail.call_date === formattedDate) {
+            totalTodayCalls++;
+          }
           totalCalls++;
         }
       });
@@ -143,6 +220,7 @@ module.exports.get_employee_calls = async (req, res) => {
       totalCalls,
       totalInboundCalls,
       totalOutboundCalls,
+      totalTodayCalls
     });
   } catch (error) {
     console.error(error);

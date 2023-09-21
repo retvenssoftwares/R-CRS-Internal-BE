@@ -1,39 +1,8 @@
 const CallDetails = require("../../models/call_details"); // Import the Mongoose model
 const moment = require("moment");
+const { format } = require('date-fns');
 
-// Define a route to get the total calls for a specific day
-module.exports.get_all_calls = async (req, res) => {
-  try {
-    const { date } = req.params; // Get the date from the query parameters
 
-    const formattedDate = date.replace(/\//g, "-");
-
-    // Validate the date format or perform any necessary validation
-
-    // Query the database to find calls for the specified date
-    const callsForDate = await CallDetails.find({
-      "calls_details.call_date": formattedDate,
-    });
-
-    let totalCalls = 0;
-
-    // Iterate through each document and count the calls
-    callsForDate.forEach((doc) => {
-      console.log("calls_details");
-      totalCalls += doc.calls_details.length;
-    });
-
-    res.json({ totalCalls });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Define a route to get the total calls for a specific day
-//const CallDetails = require('../../models/call_details'); // Import the Mongoose model
-
-// Define a route to find the disposition with the highest occurrence for each day
 module.exports.get_disposition = async (req, res) => {
   try {
     // Aggregate data to find the disposition(s) with the highest occurrence for each day
@@ -90,8 +59,13 @@ module.exports.get_calls = async (req, res) => {
     let totalInboundCalls = 0;
     let totalOutboundCalls = 0;
     let totalCalls = 0;
+    let totalCallsTodaysDate = 0;
 
     const allCalls = await CallDetails.find({});
+
+    // Get the current date in "YYYY-MM-DD" format
+    const currentDate = new Date();
+    const formattedDate = format(currentDate, 'dd-MM-yyyy');
 
     allCalls.forEach((call) => {
       call.calls_details.forEach((callDetail) => {
@@ -99,6 +73,11 @@ module.exports.get_calls = async (req, res) => {
           totalInboundCalls++;
         } else if (callDetail.type === "outbound") {
           totalOutboundCalls++;
+        }
+
+        // Check if the call date matches today's date
+        if (callDetail.call_date === currentDate) {
+          totalCallsTodaysDate++;
         }
       });
 
@@ -109,12 +88,14 @@ module.exports.get_calls = async (req, res) => {
       totalCalls,
       totalInboundCalls,
       totalOutboundCalls,
+      totalCallsTodaysDate,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 

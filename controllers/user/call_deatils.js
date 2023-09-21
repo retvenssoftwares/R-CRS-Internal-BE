@@ -102,6 +102,7 @@ module.exports.get_call_details = async (req, res) => {
 module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {
   try {
     const { guest_mobile, date, hotelName, disposition } = req.params;
+    const formattedDate = date.replace(/\//g, "-");
 
     // Create an object to store the filter criteria based on provided parameters
    
@@ -121,7 +122,7 @@ module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {
    
     const details = await data.findOne({
       'calls_details.guest_id': guest_id,
-      'calls_details.call_date': date,
+      'calls_details.call_date': formattedDate,
       'calls_details.call_date': { $ne: '' }, // Exclude empty call_date
     });
 

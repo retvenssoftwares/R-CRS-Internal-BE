@@ -5,7 +5,13 @@ const key = process.env.key;
 const iv = process.env.iv;
 
 module.exports.sign_up = async (req, res) => {
-  const { confirm_password, password } = req.body;
+  const { confirm_password, password ,role } = req.body;
+
+
+  if (role !== "Admin") {
+    return res.status(403).json({ message: "You are not authorized as an admin" });
+  }
+
 
   if (!password === confirm_password) {
     return res.send({ msg: "password not matched with confirm password" });
@@ -33,6 +39,7 @@ module.exports.sign_up = async (req, res) => {
     email: req.body.email,
     password: encryptedpassword,
     department: req.body.department,
+    role : "Admin" ,
   });
 
   const username = await data.findOne({ userName: savedata.userName });
