@@ -29,13 +29,13 @@ module.exports = async (req, res) => {
         },
       },
     ]);
-
+    console.log("123456789")
     if (result && result.length > 0) {
       // If data is found, send it as a response
-      res.json(result);
+      res.status(200).json(result);
     } else {
       // If no data is found, send a 404 response
-      res.status(404).json({ error: 'Employee not found' });
+      res.status(200).json({ error: 'Employee not found' });
     }
   } catch (error) {
     console.error(error);
@@ -138,7 +138,7 @@ module.exports.get_employee_calls = async (req, res) => {
         }
       });
     });
-
+    console.log(totalCalls)
     return res.status(200).json({
       totalCalls,
       totalInboundCalls,
