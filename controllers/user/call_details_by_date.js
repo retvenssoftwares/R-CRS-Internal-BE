@@ -76,7 +76,7 @@ module.exports.get_calls = async (req, res) => {
         }
 
         // Check if the call date matches today's date
-        if (callDetail.call_date === currentDate) {
+        if (callDetail.call_date === formattedDate) {
           totalCallsTodaysDate++;
         }
       });

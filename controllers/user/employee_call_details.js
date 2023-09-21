@@ -130,8 +130,6 @@ module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
 
 //role wise call details
 
-
-
 module.exports.get_call_by_role_emp_id = async (req, res) => {
   try {
     const { role, employee_id } = req.body;
@@ -139,12 +137,11 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
     let call_data;
 
     if (role === "Admin" || role === "admin") {
-      const inboundCalls = [];
-      const outboundCalls = [];
-    
       call_data = await EmployeeModel.find({});
       call_data.reverse();
-    
+      const inboundCalls = [];
+      const outboundCalls = [];
+
       call_data.forEach((call) => {
         call.calls_details.forEach((callDetail) => {
           if (callDetail.type === "inbound") {
@@ -154,7 +151,7 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
           }
         });
       });
-    
+
       return res.status(200).json({ inboundCalls, outboundCalls });
     } else if (employee_id) {
       call_data = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
@@ -162,19 +159,20 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
       const allCalls = call_data.reduce((accumulator, currentValue) => {
         return accumulator.concat(currentValue.calls_details);
       }, []);
-  
-      return res.status(200).json({ call_info: allCalls });
+
+      const inboundCalls = allCalls.filter(callDetail => callDetail.type === "inbound");
+      const outboundCalls = allCalls.filter(callDetail => callDetail.type === "outbound");
+
+      return res.status(200).json({ inboundCalls, outboundCalls });
     } else {
       return res.status(400).json({ message: "Enter a valid role or employee_id" });
     }
-
-    //Flatten all call records into a single array
-   
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 

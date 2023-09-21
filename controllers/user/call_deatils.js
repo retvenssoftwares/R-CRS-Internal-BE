@@ -54,47 +54,37 @@ module.exports.post_call_details = async (req, res) => {
 // type of call by guest_id and employee_Id
 module.exports.get_call_details = async (req, res) => {
   const type_of_call = req.params.type_of_call;
-  const { guest_id, employee_id } = req.body;
+  const { employee_id } = req.body;
 
-  const get_call = await data.find({
-    calls_details: {
-      $elemMatch: { type: type_of_call },
-    },
-  });
+  try {
+    call_data = await data.find({ 'calls_details.employee_id': employee_id });
+    call_data.reverse();
+    const allCalls = call_data.reduce((accumulator, currentValue) => {
+      return accumulator.concat(currentValue.calls_details);
+    }, []);
 
-  const get_guest_detals = await guest_details.findOne({ guest_id: guest_id });
-  const employee_data = await employee.findOne({ employee_id: employee_id });
+    let filteredCalls;
 
-  if (!get_guest_detals || !employee_data) {
-    return res.status(500).json({ msg: "enter valid employee or guest_id" });
+    if (type_of_call === "inbound") {
+      filteredCalls = allCalls.filter(callDetail => callDetail.type === "inbound");
+    } else if (type_of_call === "outbound") {
+      filteredCalls = allCalls.filter(callDetail => callDetail.type === "outbound");
+    } else {
+      return res.status(400).json({ msg: "Invalid type_of_call parameter" });
+    }
+
+    if (filteredCalls.length === 0) {
+      return res.status(404).json({ msg: `No ${type_of_call} calls found` });
+    }
+
+    return res.status(200).json({ [type_of_call + "Calls"]: filteredCalls });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
-
-  if (get_call.length === 0) {
-    return res.status(500).json({ msg: "No data found" });
-  }
-
-  if (!get_call) {
-    return res.status(500).json({ msg: "Invalid type" });
-  }
-
-  const details = {
-    guest_first_name: get_guest_detals.guest_first_name,
-    guest_last_name: get_guest_detals.guest_last_name,
-    //guest_mobile_number : get_guest_detals.guest_mobile_number,
-    guest_location: get_guest_detals.guest_location,
-    caller_type: get_guest_detals.caller_type,
-    callback_date_time: get_guest_detals.callback_date_time,
-    salutation: get_guest_detals.salutation,
-    remark: get_guest_detals.remark,
-    hotel_name: get_guest_detals.hotel_name,
-    purpose_of_travel: get_guest_detals.purpose_of_travel,
-    employee_first_name: employee_data.first_name,
-    employee_last_name: employee_data.last_name,
-    department: employee_data.department,
-    call_details: get_call,
-  };
-  return res.status(200).json({ details });
 };
+
+
 
 // Import the Mongoose model
 
