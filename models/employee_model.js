@@ -18,6 +18,10 @@ const employeeSchema = mongoose.Schema({
         type:String,
         default:""
     },
+    joining_date:{
+        type:String,
+        default:""
+    },
     gender:{
         type:String,
         required:false,
