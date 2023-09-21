@@ -8,11 +8,7 @@ const employeeSchema = mongoose.Schema({
         unique:true,
         default:""
     },
-    employee_id : {
-        type: String,
-        default: randomstring.generate(10),
-        //unique:true
-    },
+   
     first_name:{
         type:String,
         default :"",
@@ -35,20 +31,14 @@ const employeeSchema = mongoose.Schema({
           require: true,
         },
       }],
-    // date_of_joining: {
-    //     type: String,
-    //     required : true
-    // },
-    phone_number:{
+  
+    mobile_number:{
         type:String,
         unique:false,
         required:false,
         max:15,
     },
-    // isActive:{
-    //     type:Boolean,
-    //     default:false
-    // },
+ 
     email:{
         type:String,
         unique:false,
@@ -60,6 +50,10 @@ const employeeSchema = mongoose.Schema({
       min:4,
       max:100
     },
+    designation:{
+        type:String,
+        default:""
+    }
    
 },{ timestamps:true });
 
