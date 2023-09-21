@@ -90,7 +90,7 @@ module.exports = async (req, res) => {
 // all employee
 
 module.exports.get_all_employee = async(req,res)=>{
-  if(req.params.role === "Admin"){
+  if(req.query.role === "Admin"){
     const get_all_employee = await employee_model.find({})
     return res.status(200).json({get_all_employee})
   }else{
