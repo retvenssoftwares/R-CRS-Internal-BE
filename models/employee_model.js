@@ -31,20 +31,14 @@ const employeeSchema = mongoose.Schema({
           require: true,
         },
       }],
-    // date_of_joining: {
-    //     type: String,
-    //     required : true
-    // },
+  
     mobile_number:{
         type:String,
         unique:false,
         required:false,
         max:15,
     },
-    // isActive:{
-    //     type:Boolean,
-    //     default:false
-    // },
+ 
     email:{
         type:String,
         unique:false,
