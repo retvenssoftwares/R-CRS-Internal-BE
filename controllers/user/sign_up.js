@@ -155,10 +155,12 @@ module.exports.login = async (req, res) => {
       if (decryptedPassword !== password) {
         return res.status(500).json({ msg: "enter valid password" });
       }
+
+      employee_id = userfound.employee_id
       const details = {
         userName: userfound.userName,
         gender: userfound.gender,
-        employee_id: userfound.employee_id,
+        employee_id: employee_id,
         phone_number: userfound.phone_number,
         first_name: userfound.first_name,
         last_name: userfound.last_name,
