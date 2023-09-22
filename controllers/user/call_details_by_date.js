@@ -71,9 +71,10 @@ module.exports.get_calls = async (req, res) => {
 
     // Get the start of the month in "YYYY-MM-DD" format
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // 
+    
     const formattedStartOfMonth = format(startOfMonth, 'dd-MM-yyyy');
-
-    console
+    console.log(formattedStartOfMonth)
+   
 
     allCalls.forEach((call) => {
       call.calls_details.forEach((callDetail) => {
@@ -83,6 +84,7 @@ module.exports.get_calls = async (req, res) => {
           
           // Check if the call date is within the current month
           if (callDate >= formattedStartOfMonth && callDate <= formattedDate) {
+            console.log("1")
             totalInboundCallsThisMonth++;
           }
         } else if (callDetail.type === "outbound") {
