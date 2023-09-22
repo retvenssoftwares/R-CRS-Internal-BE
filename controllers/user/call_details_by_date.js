@@ -56,10 +56,10 @@ module.exports.get_disposition = async (req, res) => {
 
 module.exports.get_calls = async (req, res) => {
   try {
-    let totalInboundCalls = 0;
+    
     let totalOutboundCalls = 0;
     let totalCalls = 0;
-    let totalCallsTodaysDate = 0;
+    let totalInboundCallsThisMonth = 0;
 
     const allCalls = await CallDetails.find({});
 
@@ -67,18 +67,30 @@ module.exports.get_calls = async (req, res) => {
     const currentDate = new Date();
     const formattedDate = format(currentDate, 'dd-MM-yyyy');
 
+    console.log(formattedDate)
+
+    // Get the start of the month in "YYYY-MM-DD" format
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // 
+    const formattedStartOfMonth = format(startOfMonth, 'dd-MM-yyyy');
+
+    console
+
     allCalls.forEach((call) => {
       call.calls_details.forEach((callDetail) => {
         if (callDetail.type === "inbound") {
-          totalInboundCalls++;
+          // Convert the call_date to a Date object
+          const callDate = new Date(callDetail.call_date);
+          
+          // Check if the call date is within the current month
+          if (callDate >= formattedStartOfMonth && callDate <= formattedDate) {
+            totalInboundCallsThisMonth++;
+          }
         } else if (callDetail.type === "outbound") {
           totalOutboundCalls++;
         }
 
         // Check if the call date matches today's date
-        if (callDetail.call_date === formattedDate) {
-          totalCallsTodaysDate++;
-        }
+       
       });
 
       totalCalls += call.calls_details.length;
@@ -86,9 +98,9 @@ module.exports.get_calls = async (req, res) => {
 
     return res.status(200).json({
       totalCalls,
-      totalInboundCalls,
+      totalInboundCallsThisMonth,
       totalOutboundCalls,
-      totalCallsTodaysDate,
+      
     });
   } catch (error) {
     console.error(error);
@@ -100,6 +112,7 @@ module.exports.get_calls = async (req, res) => {
 
 
 // inbound and outbounds calls details 
+
 
 module.exports.get_inbound_calls_and_outbounds_callDetails = async (req, res) => {
   try {
@@ -134,8 +147,6 @@ module.exports.get_inbound_calls_and_outbounds_callDetails = async (req, res) =>
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
 
 // top five disposition
 
