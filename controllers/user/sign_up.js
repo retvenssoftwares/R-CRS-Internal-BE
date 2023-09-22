@@ -30,6 +30,7 @@ module.exports.sign_up = async (req, res) => {
     if (role === "Admin" || role === "SuperAdmin") {
       const savedata = new data({
         employee_id: randomstring.generate(10),
+        agent_id:req.body.agent_id,
         userName: req.body.userName,
         first_name: req.body.First_name,
         gender: req.body.gender,
@@ -42,6 +43,12 @@ module.exports.sign_up = async (req, res) => {
         password: encryptedpassword,
         department: department,
       });
+
+      const agent_id = await data.findOne({ agent_id: savedata.agent_id });
+
+      if (agent_id) {
+        return res.status(500).json({ message: "agent_id already exists" });
+      }
 
       const username = await data.findOne({ userName: savedata.userName });
 
@@ -62,6 +69,7 @@ module.exports.sign_up = async (req, res) => {
     if (role === "SuperAdmin") {
       const savedata = new data({
         employee_id: randomstring.generate(10),
+        agent_id:req.body.agent_id,
         userName: req.body.userName,
         first_name: req.body.First_name,
         gender: req.body.gender,
@@ -74,6 +82,12 @@ module.exports.sign_up = async (req, res) => {
         password: encryptedpassword,
         department: department,
       });
+
+      const agent_id = await data.findOne({ agent_id: savedata.agent_id });
+
+      if (agent_id) {
+        return res.status(500).json({ message: "agent_id already exists" });
+      }
 
       const username = await data.findOne({ userName: savedata.userName });
 
@@ -94,6 +108,7 @@ module.exports.sign_up = async (req, res) => {
     if (role === "SuperAdmin") {
       const savedata = new data({
         employee_id: randomstring.generate(10),
+        agent_id:req.body.agent_id,
         userName: req.body.userName,
         first_name: req.body.First_name,
         gender: req.body.gender,
@@ -107,6 +122,12 @@ module.exports.sign_up = async (req, res) => {
         department: department,
       });
 
+      const agent_id = await data.findOne({ agent_id: savedata.agent_id });
+
+      if (agent_id) {
+        return res.status(500).json({ message: "agent_id already exists" });
+      }
+      
       const username = await data.findOne({ userName: savedata.userName });
 
       if (username) {

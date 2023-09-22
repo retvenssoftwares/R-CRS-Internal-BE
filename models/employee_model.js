@@ -13,6 +13,11 @@ const employeeSchema = mongoose.Schema(
       type: String,
       default: "",
     },
+    agent_id: {
+      type: String,
+      default: "",
+      
+    },
     first_name: {
       type: String,
       default: "",
