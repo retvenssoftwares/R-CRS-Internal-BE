@@ -1,6 +1,7 @@
 const CallDetails = require("../../models/call_details"); // Import the Mongoose model
+const guest_booking_collections = require("../../models/booking_model")
 const moment = require("moment");
-const { format } = require('date-fns');
+const { format , parseISO } = require('date-fns');
 
 
 module.exports.get_disposition = async (req, res) => {
@@ -56,7 +57,6 @@ module.exports.get_disposition = async (req, res) => {
 
 module.exports.get_calls = async (req, res) => {
   try {
-    
     let totalOutboundCalls = 0;
     let totalCalls = 0;
     let totalInboundCallsThisMonth = 0;
@@ -65,44 +65,33 @@ module.exports.get_calls = async (req, res) => {
 
     // Get the current date in "YYYY-MM-DD" format
     const currentDate = new Date();
-    const formattedDate = format(currentDate, 'dd-MM-yyyy');
+   const formattedCurrentDate = format(currentDate, "dd-MM-yyyy");
 
-    console.log(formattedDate)
-
-    // Get the start of the month in "YYYY-MM-DD" format
-    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // 
-    
-    const formattedStartOfMonth = format(startOfMonth, 'dd-MM-yyyy');
-    console.log(formattedStartOfMonth)
-   
+// Get the start of the month
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const formattedStartOfMonth = format(startOfMonth, "dd-MM-yyyy");
 
     allCalls.forEach((call) => {
       call.calls_details.forEach((callDetail) => {
         if (callDetail.type === "inbound") {
           // Convert the call_date to a Date object
-          const callDate = new Date(callDetail.call_date);
           
           // Check if the call date is within the current month
-          if (callDate >= formattedStartOfMonth && callDate <= formattedDate) {
-            console.log("1")
+          if (callDetail.call_date >= formattedStartOfMonth && callDetail.call_date <= formattedCurrentDate) {
             totalInboundCallsThisMonth++;
           }
         } else if (callDetail.type === "outbound") {
           totalOutboundCalls++;
         }
-
-        // Check if the call date matches today's date
-       
+        // Count the total number of calls
+        totalCalls++;
       });
-
-      totalCalls += call.calls_details.length;
     });
 
     return res.status(200).json({
       totalCalls,
       totalInboundCallsThisMonth,
       totalOutboundCalls,
-      
     });
   } catch (error) {
     console.error(error);
@@ -114,44 +103,55 @@ module.exports.get_calls = async (req, res) => {
 
 
 // inbound and outbounds calls details 
+ // Import the Guest model or replace it with your actual model import
 
-
-module.exports.get_inbound_calls_and_outbounds_callDetails = async (req, res) => {
+ module.exports.get_inbound_calls_and_outbounds_callDetails = async (req, res) => {
   try {
-    const inboundsCalls = [];
-    
-    const inboundscalls = await CallDetails.find({});
-    
-    inboundscalls.forEach((call) => {
-      call.calls_details.forEach((callDetail) => {
-        if (callDetail.type === "inbound") {
-          inboundsCalls.push(callDetail);
+    // Remove the $match stage to get all call_details
+    const callsWithGuestDetails = await CallDetails.find({});
+
+    if (callsWithGuestDetails.length === 0) {
+      return res.status(404).json({ msg: `No calls found` });
+    }
+
+    const flattenedCallDetails = [];
+
+    for (const callDetail of callsWithGuestDetails) {
+      // Iterate through the callDetails within each callDetail
+      for (const call of callDetail.calls_details) {
+        // Find the corresponding guestDetails based on the guest_id from the current call
+        const guestDetails = await guest_booking_collections.findOne({ guest_id: call.guest_id });
+        
+
+        // Create a new object combining call_details and guest_details
+        if (guestDetails) {
+          call.guest_details = {
+          // Include all existing guest_details properties
+            guest_first_name: guestDetails.guest_first_name, // Include guest_first_name
+            caller_id : guestDetails.guest_mobile_number
+          };
+
         }
-      });
-    });
+        console.log(call.guest_details)
+        flattenedCallDetails.push({ call,guest_details: call.guest_details});
+      }
+    }
 
-
-    const outboundCalls = [];
-    
-    const callDetails = await CallDetails.find({});
-    
-    callDetails.forEach((call) => {
-      call.calls_details.forEach((callDetail) => {
-        if (callDetail.type === "outbound") {
-          outboundCalls.push(callDetail);
-        }
-      });
-    });
-
-    return res.status(200).json({ inboundsCalls,outboundCalls });
+    // Return the flattenedCallDetails array
+    return res.status(200).json({allCalls : flattenedCallDetails});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ msg: 'Internal server error' });
   }
 };
 
-// top five disposition
 
+
+
+
+
+
+// top five disposition
 module.exports.getTop5Dispositions = async (req, res) => {
   try {
     const allCalls = await CallDetails.find({});

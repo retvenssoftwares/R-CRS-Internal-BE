@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
         },
       },
     ]);
-    console.log("123456789")
+    
     if (result && result.length > 0) {
       // If data is found, send it as a response
       res.status(200).json(result);
@@ -186,13 +186,17 @@ module.exports.get_employee_calls = async (req, res) => {
       return res.status(500).json({ error: "Not Found" });
     }
 
-    let totalInboundCalls = 0;
+    
     let totalOutboundCalls = 0;
     let totalCalls = 0;
-    let totalTodayCalls = 0
+    let totalInboundCallsThisMonth = 0
 
     const currentDate = new Date();
-    const formattedDate = format(currentDate, 'dd-MM-yyyy');
+    const formattedCurrentDate = format(currentDate, "dd-MM-yyyy");
+ 
+ // Get the start of the month
+     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+     const formattedStartOfMonth = format(startOfMonth, "dd-MM-yyyy");
 
 
 
@@ -202,23 +206,22 @@ module.exports.get_employee_calls = async (req, res) => {
       call.calls_details.forEach((callDetail) => {
         if (callDetail.employee_id === employeeId) {
           if (callDetail.type === "inbound") {
-            totalInboundCalls++;
+            if (callDetail.call_date >= formattedStartOfMonth && callDetail.call_date <= formattedCurrentDate) {
+              totalInboundCallsThisMonth++;
+            }
           } else if (callDetail.type === "outbound") {
             totalOutboundCalls++;
           }
-          if (callDetail.call_date === formattedDate) {
-            totalTodayCalls++;
-          }
+         
           totalCalls++;
         }
       });
     });
-    console.log(totalCalls)
+   
     return res.status(200).json({
       totalCalls,
-      totalInboundCalls,
+      totalInboundCallsThisMonth,
       totalOutboundCalls,
-      totalTodayCalls
     });
   } catch (error) {
     console.error(error);
@@ -328,12 +331,24 @@ module.exports.findTopFiveEmployees = async (req, res) => {
       },
     ]);
 
+    
     // Optionally, you can reshape the result to have a more meaningful structure
-    const topEmployeesWithDetails = topEmployees.map((employee) => ({
-      employee_id: employee._id,
-      totalCalls: employee.totalCalls,
-    }));
-
+    const topEmployeesWithDetails = await Promise.all(
+      topEmployees.map(async (employee) => {
+        // Call your other collection function here
+        const additionalData = await employee_model.findOne({ employee_id: employee._id });
+       
+        
+        // Construct the resulting object
+        return {
+          employee_id: employee._id,
+          first_name: additionalData.first_name,
+          totalCalls: employee.totalCalls,
+          // Include additional data
+        };
+      })
+    );
+    
     return res.status(200).json({ topEmployeesWithDetails });
   } catch (error) {
     console.error('Error finding top employees:', error);

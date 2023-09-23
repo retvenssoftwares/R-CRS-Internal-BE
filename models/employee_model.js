@@ -36,6 +36,10 @@ const employeeSchema = mongoose.Schema(
       required: false,
       default: "",
     },
+    status:{
+      type:String,
+      default:""
+    },
     department: [
       {
         department_name: { type: String, default: "", require: true },

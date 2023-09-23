@@ -19,7 +19,9 @@ const call = new mongoose.Schema({
         default:''
     },
       time_to_answer:{type: String, default: ""},
+      remark : {type: String, default: ""},
       talktime :{type: String, default: ""},
+      caller_id : {type : String , default : ""},
       type: { type: String, default: "" },
       dial_status: { type: String, defaut: "" },
       last_called:{ type: String, defaut: "" },
