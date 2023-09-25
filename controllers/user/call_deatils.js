@@ -87,22 +87,13 @@ module.exports.get_call_details = async (req, res) => {
           const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
 
           // Create a new call object with guest_details if guestDetails is found
-          if (guestDetails) {
-            const updatedCall = {
-              ...call,
-              guest_details: {
-                guest_location: guestDetails.guest_location,
-                guest_mobile_number: guestDetails.guest_mobile_number,
-                guest_first_name: guestDetails.guest_first_name,
-                guest_last_name: guestDetails.guest_last_name,
-                // Add other guest detail fields here
-              },
-            };
-            updatedCallDetails.push(updatedCall); // Add the updated call to the array
-          } else {
-            // If guestDetails is not found, push the call object as is
-            updatedCallDetails.push(call);
+          if (guestDetails)   {
+            call.guest_location = guestDetails.guest_location;
+            call.guest_mobile_number = guestDetails.guest_mobile_number;
+            call.guest_first_name = guestDetails.guest_first_name;
+            call.guest_last_name = guestDetails.guest_last_name;
           }
+          updatedCallDetails.push(call);
         }
       }
 
@@ -111,10 +102,10 @@ module.exports.get_call_details = async (req, res) => {
     }
 
     // Fetch employee details for each unique employee_id in allCallDetails
-    const uniqueEmployeeIds = Array.from(new Set(allCallDetails.map(item => item.calls_details.employee_id))).concat(employee_id);
+    const uniqueEmployeeIds = Array.from(new Set(allCallDetails.map(item => item.calls_details.employee_id)));
 
     const employeeDetailsPromises = uniqueEmployeeIds.map(async (employee_id) => {
-      const employee = await employee_details.findOne({ employee_id: employee_id});
+      const employee = await employee_details.findOne({ employee_id: employee_id });
       return {
         employee_id: employee_id,
         employee_first_name: employee ? employee.first_name : 'Unknown',
@@ -158,6 +149,7 @@ module.exports.get_call_details = async (req, res) => {
     return res.status(500).json({ msg: 'Internal server error' });
   }
 };
+
 
 
 
