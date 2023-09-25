@@ -73,64 +73,50 @@ module.exports.get_call_details = async (req, res) => {
       return res.status(404).json({ msg: `No ${type_of_call} calls found` });
     }
 
-    const allCallDetails = [];
+    const groupedCalls = {}; // To group calls by type
 
     for (const callDetail of callsWithGuestDetails) {
-      // Initialize an array to store filtered callDetails for each callDetail
-      const filteredCallDetails = [];
-
-      // Iterate through the callDetails within each callDetail
       for (const call of callDetail.calls_details) {
-        // Filter the call based on the type_of_call
         if (call.type === type_of_call) {
-          // Find the corresponding guestDetails based on the guest_id from the current call
           const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
-
+          
           // Create a new call object with guest_details if guestDetails is found
           if (guestDetails) {
-            call.guest_location = guestDetails.guest_location;
-            call.guest_mobile_number = guestDetails.guest_mobile_number;
-            call.guest_first_name = guestDetails.guest_first_name;
-            call.guest_last_name = guestDetails.guest_last_name;
+            const guestInfo = {
+              guest_id: call.guest_id,
+              guest_first_name: guestDetails.guest_first_name,
+              guest_mobile_number : guestDetails.guest_mobile_number,
+              guest_location : guestDetails.guest_location,
+              guest_last_name: guestDetails.guest_last_name,
+            };
+            
+            if (!groupedCalls[type_of_call]) {
+              groupedCalls[type_of_call] = [];
+            }
+            
+            if (!groupedCalls[type_of_call].find(item => item.guest_id === call.guest_id)) {
+              groupedCalls[type_of_call].push({
+                ...guestInfo,
+                call_details: [],
+              });
+            }
+            
+            groupedCalls[type_of_call].forEach(item => {
+              if (item.guest_id === call.guest_id) {
+                item.call_details.push(call);
+              }
+            });
           }
-          filteredCallDetails.push(call); // Add the callDetail to filteredCallDetails
         }
       }
-
-      // Add the filteredCallDetails array to allCallDetails
-      allCallDetails.push({
-     
-        call_details: filteredCallDetails, // Change to call_details
-      });
     }
 
-    // Fetch employee details for each unique employee_id in allCallDetails
-    const uniqueEmployeeIds = Array.from(new Set(allCallDetails.map(item => item.employee_id)));
+    // Convert the groupedCalls object into an array
+    const responseArray = Object.entries(groupedCalls).map(([callType, callList]) => ({
+      [callType]: callList,
+    }));
 
-    const employeeDetailsPromises = uniqueEmployeeIds.map(async (employee_id) => {
-      const employee = await employee_details.findOne({ employee_id: employee_id });
-      return {
-        employee_id: employee_id,
-        employee_first_name: employee ? employee.first_name : 'Unknown',
-        employee_last_name: employee ? employee.last_name : 'Unknown',
-      };
-    });
-    const employeeDetails = await Promise.all(employeeDetailsPromises);
-
-    // Add employee details to each call detail
-    for (const callDetail of allCallDetails) {
-      const employee = employeeDetails.find(emp => emp.employee_id === callDetail.employee_id);
-      if (employee) {
-        callDetail.employee_first_name = employee.employee_first_name;
-        callDetail.employee_last_name = employee.employee_last_name;
-      }
-    }
-
-
-    
-
-    // Return the response containing the flattened call_details array
-    return res.status(200).json(allCallDetails);
+    return res.status(200).json(responseArray);
 
   } catch (error) {
     console.error(error);
