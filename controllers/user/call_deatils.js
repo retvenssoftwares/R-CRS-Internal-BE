@@ -99,8 +99,8 @@ module.exports.get_call_details = async (req, res) => {
 
       // Add the filteredCallDetails array to allCallDetails
       allCallDetails.push({
-        ...callDetail,
-        calls_details: filteredCallDetails,
+     
+        call_details: filteredCallDetails, // Change to call_details
       });
     }
 
@@ -118,13 +118,16 @@ module.exports.get_call_details = async (req, res) => {
     const employeeDetails = await Promise.all(employeeDetailsPromises);
 
     // Add employee details to each call detail
-    for (const call of allCallDetails) {
-      const employee = employeeDetails.find(emp => emp.employee_id === call.employee_id);
+    for (const callDetail of allCallDetails) {
+      const employee = employeeDetails.find(emp => emp.employee_id === callDetail.employee_id);
       if (employee) {
-        call.employee_first_name = employee.employee_first_name;
-        call.employee_last_name = employee.employee_last_name;
+        callDetail.employee_first_name = employee.employee_first_name;
+        callDetail.employee_last_name = employee.employee_last_name;
       }
     }
+
+
+    
 
     // Return the response containing the flattened call_details array
     return res.status(200).json(allCallDetails);
@@ -134,7 +137,6 @@ module.exports.get_call_details = async (req, res) => {
     return res.status(500).json({ msg: 'Internal server error' });
   }
 };
-
 
 
 
