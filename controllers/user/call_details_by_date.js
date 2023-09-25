@@ -317,7 +317,7 @@ module.exports.get_calls_summary = async (req, res) => {
           const formattedCallDate = format(callDate, dateFormat);
     
           // Check if the formatted call date is within the specified date range
-          if (formattedCallDate >= formattedStartDate && formattedCallDate <= formattedEndDate && callDetail.disposition === disposition && callDetail.hotel_name === hotel_name) {
+          if (formattedCallDate >= formattedStartDate && formattedCallDate <= formattedEndDate || callDetail.disposition === disposition || callDetail.hotel_name === hotel_name) {
             const guest_data = await guest_booking_collections.findOne({ guest_id: callDetail.guest_id });
             const agent_model = await employee_model.findOne({ agent_id: callDetail.agent_id });
     

@@ -79,22 +79,21 @@ module.exports.get_call_details = async (req, res) => {
       for (const call of callDetail.calls_details) {
         if (call.type === type_of_call) {
           const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
-          const aget = await employee_details.findOne({employee_id : call.employee_id})
+          const agentDetails = await employee_details.findOne({ employee_id: call.employee_id });
           
           // Create a new call object with guest_details if guestDetails is found
           if (guestDetails) {
-            const agent_full_name = `${aget.first_name} ${aget.last_name}`;
+            const agent_full_name = `${agentDetails.first_name} ${agentDetails.last_name}`;
             const guestInfo = {
               guest_id: call.guest_id,
               guest_first_name: guestDetails.guest_first_name,
-              guest_last_name:guestDetails.guest_last_name,
-              type : call.type,
-              agent_id : aget.agent_id,
-              agent_name :  agent_full_name,
-              guest_mobile_number : guestDetails.guest_mobile_number,
-              guest_location : guestDetails.guest_location,
               guest_last_name: guestDetails.guest_last_name,
-              disposition : call.disposition
+              type: call.type,
+              agent_id: agentDetails.agent_id,
+              agent_name: agent_full_name,
+              guest_mobile_number: guestDetails.guest_mobile_number,
+              guest_location: guestDetails.guest_location,
+              disposition: call.disposition,
             };
             
             if (!groupedCalls[type_of_call]) {
@@ -118,6 +117,18 @@ module.exports.get_call_details = async (req, res) => {
       }
     }
 
+    // Set the "last_supported_by" field for each guest to the last agent in the call_details array
+    for (const callType in groupedCalls) {
+      groupedCalls[callType].forEach(item => {
+        if (item.call_details.length > 0) {
+          item.last_support_by = {
+            agent_id: item.call_details[item.call_details.length - 1].agent_id,
+            agent_name: item.call_details[item.call_details.length - 1].agent_name,
+          };
+        }
+      });
+    }
+
     // Convert the groupedCalls object into an array
     const responseArray = Object.entries(groupedCalls).map(([callType, callList]) => ({
       [callType]: callList,
@@ -130,7 +141,6 @@ module.exports.get_call_details = async (req, res) => {
     return res.status(500).json({ msg: 'Internal server error' });
   }
 };
-
 
 
 
