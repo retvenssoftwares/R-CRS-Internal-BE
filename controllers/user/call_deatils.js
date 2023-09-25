@@ -79,15 +79,21 @@ module.exports.get_call_details = async (req, res) => {
       for (const call of callDetail.calls_details) {
         if (call.type === type_of_call) {
           const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
+          const aget = await employee_details.findOne({employee_id : call.employee_id})
           
           // Create a new call object with guest_details if guestDetails is found
           if (guestDetails) {
+            const agent_full_name = `${aget.first_name} ${aget.last_name}`;
             const guestInfo = {
               guest_id: call.guest_id,
               guest_first_name: guestDetails.guest_first_name,
+              guest_last_name:guestDetails.guest_last_name,
+              agent_id : aget.agent_id,
+              agent_name :  agent_full_name,
               guest_mobile_number : guestDetails.guest_mobile_number,
               guest_location : guestDetails.guest_location,
               guest_last_name: guestDetails.guest_last_name,
+              disposition : call.disposition
             };
             
             if (!groupedCalls[type_of_call]) {
