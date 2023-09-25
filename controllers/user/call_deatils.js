@@ -76,8 +76,8 @@ module.exports.get_call_details = async (req, res) => {
     const allCallDetails = [];
 
     for (const callDetail of callsWithGuestDetails) {
-      // Initialize an array to store updated callDetails for each callDetail
-      const updatedCallDetails = [];
+      // Initialize an array to store filtered callDetails for each callDetail
+      const filteredCallDetails = [];
 
       // Iterate through the callDetails within each callDetail
       for (const call of callDetail.calls_details) {
@@ -87,22 +87,25 @@ module.exports.get_call_details = async (req, res) => {
           const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
 
           // Create a new call object with guest_details if guestDetails is found
-          if (guestDetails)   {
+          if (guestDetails) {
             call.guest_location = guestDetails.guest_location;
             call.guest_mobile_number = guestDetails.guest_mobile_number;
             call.guest_first_name = guestDetails.guest_first_name;
             call.guest_last_name = guestDetails.guest_last_name;
           }
-          updatedCallDetails.push(call);
+          filteredCallDetails.push(call); // Add the callDetail to filteredCallDetails
         }
       }
 
-      // Add the updatedCallDetails array to allCallDetails
-      allCallDetails.push({ ...callDetail, calls_details: updatedCallDetails });
+      // Add the filteredCallDetails array to allCallDetails
+      allCallDetails.push({
+        ...callDetail,
+        calls_details: filteredCallDetails,
+      });
     }
 
     // Fetch employee details for each unique employee_id in allCallDetails
-    const uniqueEmployeeIds = Array.from(new Set(allCallDetails.map(item => item.calls_details.employee_id)));
+    const uniqueEmployeeIds = Array.from(new Set(allCallDetails.map(item => item.employee_id)));
 
     const employeeDetailsPromises = uniqueEmployeeIds.map(async (employee_id) => {
       const employee = await employee_details.findOne({ employee_id: employee_id });
@@ -115,34 +118,16 @@ module.exports.get_call_details = async (req, res) => {
     const employeeDetails = await Promise.all(employeeDetailsPromises);
 
     // Add employee details to each call detail
-    for (const callDetail of allCallDetails) {
-      for (const call of callDetail.calls_details) {
-        const employee = employeeDetails.find(emp => emp.employee_id === call.employee_id);
-        if (employee) {
-          call.employee_first_name = employee.employee_first_name;
-          call.employee_last_name = employee.employee_last_name;
-        }
+    for (const call of allCallDetails) {
+      const employee = employeeDetails.find(emp => emp.employee_id === call.employee_id);
+      if (employee) {
+        call.employee_first_name = employee.employee_first_name;
+        call.employee_last_name = employee.employee_last_name;
       }
     }
 
-    // Flatten the allCallDetails array
-    const flattenedAllCallDetails = [].concat(...allCallDetails.map(item => item.calls_details));
-
-    // Filter and return either "inbound" or "outbound" details based on the type_of_call parameter
-    const responseObj = {
-      inboundCalls: [],
-      outboundCalls: [],
-    };
-
-    // Populate the response object based on type_of_call
-    if (type_of_call === 'inbound') {
-      responseObj.inboundCalls = flattenedAllCallDetails;
-    } else if (type_of_call === 'outbound') {
-      responseObj.outboundCalls = flattenedAllCallDetails;
-    }
-
-    // Return the response object
-    return res.status(200).json(responseObj);
+    // Return the response containing the flattened call_details array
+    return res.status(200).json(allCallDetails);
 
   } catch (error) {
     console.error(error);
