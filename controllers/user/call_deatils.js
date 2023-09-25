@@ -88,6 +88,7 @@ module.exports.get_call_details = async (req, res) => {
               guest_id: call.guest_id,
               guest_first_name: guestDetails.guest_first_name,
               guest_last_name:guestDetails.guest_last_name,
+              type : call.type,
               agent_id : aget.agent_id,
               agent_name :  agent_full_name,
               guest_mobile_number : guestDetails.guest_mobile_number,
