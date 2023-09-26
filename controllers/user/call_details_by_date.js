@@ -465,6 +465,7 @@ module.exports.get_agent_summary = async (req, res) => {
               agent_id: agent_data.agent_id,
               employee_id: agent_data.employee_id,
               agent_name: agent_full_name,
+              agent_email : agent_data.email,
               mobile: agent_data.mobile_number,
               call_details: [] // Initialize an empty array for call_details
             };
@@ -519,60 +520,59 @@ module.exports.get_agent_summary = async (req, res) => {
 
 // disposition analysis
 
-module.exports.get_calls_summary = async (req, res) => {
-  try {
-    const allCalls = await CallDetails.find({});
-    const disposition = req.query.from;
-    const guestDetailsArray = [];
+// module.exports.get_calls_summary = async (req, res) => {
+//   try {
+//     const allCalls = await CallDetails.find({});
+//     const disposition = req.query.from;
+//     const guestDetailsArray = [];
 
-    // Check if any query parameters are provided
-    const shouldApplyFiltering = from === "null" && to === "null" && hotel_name === "null" && disposition === "null";
-    console.log(shouldApplyFiltering)
+//     // Check if any query parameters are provided
+//     const shouldApplyFiltering = from === "null" && to === "null" && hotel_name === "null" && disposition === "null";
+//     console.log(shouldApplyFiltering)
 
-    if (shouldApplyFiltering === true) {
+//     if (shouldApplyFiltering === true) {
       
-      // No query parameters provided, execute this block
-      async function processCalls() {
-        for (const call of allCalls) {
+//       // No query parameters provided, execute this block
+//       async function processCalls() {
+//         for (const call of allCalls) {
            
-          for (const callDetail of call.calls_details) {
-            const guest_data = await guest_booking_collections.findOne({ guest_id: callDetail.guest_id });
-            const agent_model = await employee_model.findOne({ agent_id: callDetail.agent_id });
+//           for (const callDetail of call.calls_details) {
+//             const guest_data = await guest_booking_collections.findOne({ guest_id: callDetail.guest_id });
+//             const agent_model = await employee_model.findOne({ agent_id: callDetail.agent_id });
 
            
-            if (guest_data || agent_model) {
-              const Full_name = `${guest_data.guest_first_name} ${guest_data.guest_last_name}`;
-              const agent_full_name = `${agent_model.first_name} ${agent_model.last_name}`;
-              const guest_details = {
-                guest_name: Full_name,
-                guest_mobile: guest_data.guest_mobile_number,
-                date: callDetail.call_date,
-                agent_name: agent_full_name,
-                disposition: callDetail.disposition,
-                hotel_name: callDetail.hotel_name,
-                guest_email: guest_data.guest_email,
-                remark: callDetail.remark,
-              };
-              guestDetailsArray.push(guest_details);
+//             if (guest_data || agent_model) {
+//               const Full_name = `${guest_data.guest_first_name} ${guest_data.guest_last_name}`;
+//               const agent_full_name = `${agent_model.first_name} ${agent_model.last_name}`;
+//               const guest_details = {
+//                 guest_name: Full_name,
+//                 guest_mobile: guest_data.guest_mobile_number,
+//                 date: callDetail.call_date,
+//                 agent_name: agent_full_name,
+//                 disposition: callDetail.disposition,
+//                 hotel_name: callDetail.hotel_name,
+//                 guest_email: guest_data.guest_email,
+//                 remark: callDetail.remark,
+//               };
+//               guestDetailsArray.push(guest_details);
 
-              console.log(guestDetailsArray)
-            }
-          }
-        }
-      }
+//             }
+//           }
+//         }
+//       }
 
-      await processCalls();
+//       await processCalls();
 
-      if (guestDetailsArray.length === 0) {
-        return res.status(500).json({ msg: 'Data not found' });
-      }
+//       if (guestDetailsArray.length === 0) {
+//         return res.status(500).json({ msg: 'Data not found' });
+//       }
 
-      return res.status(200).json({ guest_details: guestDetailsArray });
-    }
+//       return res.status(200).json({ guest_details: guestDetailsArray });
+//     }
 
-  }
-    catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+//   }
+//     catch (error) {
+//       console.error(error);
+//       return res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//   };
