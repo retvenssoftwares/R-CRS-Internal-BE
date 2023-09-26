@@ -186,8 +186,24 @@ module.exports.login = async (req, res) => {
         first_name: userfound.first_name,
         last_name: userfound.last_name,
         department: userfound.department,
+       
       };
+
+      const loginTime = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })
+
+      await data.updateOne(
+        { userName: userName },
+        {
+          $push: {
+            login_time: {
+              $each: [loginTime],
+              $position: 0,
+            },
+          },
+        }
+      ); 
       return res.status(200).json({ details, token: "login successfully" });
+      
     }
   }
 };

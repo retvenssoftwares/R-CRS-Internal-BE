@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 const randomstring = require("randomstring");
 
+
 const employeeSchema = mongoose.Schema(
   {
     userName: {
@@ -73,6 +74,14 @@ const employeeSchema = mongoose.Schema(
       type: String,
       default: "",
     },
+    login_time: [{
+      type: String,
+      default: '',
+    }],
+    log_out_time: [{
+      type: String,
+      default: 'na',
+    }],
   },
   { timestamps: true }
 );
