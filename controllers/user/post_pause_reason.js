@@ -15,7 +15,7 @@ exports.call_pause = async(req,res)=>{
 }
 
 exports.get_pause_call = async(req,res)=>{
-    const data = await call_pause_model.findOne({employee_id:req.params.employee_id})
+    const data = await call_pause_model.findOne({employee_id:req.query.employee_id})
     if(!data){
         return res.status(200).json({message : "Data not found"})
     }
