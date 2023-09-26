@@ -293,7 +293,7 @@ module.exports.get_calls_summary = async (req, res) => {
 
     // Check if any query parameters are provided
     const shouldApplyFiltering = from === "null" && to === "null" && hotel_name === "null" && disposition === "null";
-    console.log(shouldApplyFiltering)
+   
 
     if (shouldApplyFiltering === true) {
       
@@ -437,6 +437,7 @@ module.exports.get_calls_summary = async (req, res) => {
 
 module.exports.get_agent_summary = async (req, res) => {
 
+
   try {
    
     const callsWithGuestDetails = await CallDetails.find({});
@@ -447,6 +448,7 @@ module.exports.get_agent_summary = async (req, res) => {
 
  
     const agentSummaries = {};
+    let totalCount = 0
 
     for (const callDetail of callsWithGuestDetails) {
       for (const call of callDetail.calls_details) {
@@ -456,6 +458,7 @@ module.exports.get_agent_summary = async (req, res) => {
       
     
         if (agent_data) {
+          totalCount++
           const agent_full_name = `${agent_data.first_name} ${agent_data.last_name}`;
           const guest_full_name = `${guestDetails.guest_first_name} ${guestDetails.guest_last_name}`;
     
@@ -463,6 +466,8 @@ module.exports.get_agent_summary = async (req, res) => {
             // Create a new agent_summary object if it doesn't exist
             agentSummaries[agent_data.employee_id] = {
               agent_id: agent_data.agent_id,
+              agent_login_time : agent_data.log_in_time,
+              agent_logout_time : agent_data.log_out_time,
               employee_id: agent_data.employee_id,
               agent_name: agent_full_name,
               agent_email : agent_data.email,
@@ -508,7 +513,7 @@ module.exports.get_agent_summary = async (req, res) => {
     const agentSummaryArray = Object.values(agentSummaries);
     
     console.log(agentSummaryArray);
-    return res.status(200).json({agentSummaryArray})
+    return res.status(200).json({ agentSummaryArray, totalCount });
     
 
   } catch (error) {

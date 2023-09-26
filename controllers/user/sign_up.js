@@ -195,7 +195,7 @@ module.exports.login = async (req, res) => {
         { userName: userName },
         {
           $push: {
-            login_time: {
+            log_in_time: {
               $each: [loginTime],
               $position: 0,
             },

@@ -74,7 +74,7 @@ const employeeSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    login_time: [{
+    log_in_time: [{
       type: String,
       default: '',
     }],

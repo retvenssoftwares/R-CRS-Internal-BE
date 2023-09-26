@@ -13,6 +13,10 @@ const pause_call_details = new mongoose.Schema({
     resume_time:{
         type:String,
         default:""
+    },
+    employee_id:{
+        type:String,
+        default:""
     }
   
 })
