@@ -285,69 +285,142 @@ module.exports.total_calls_in_week = async (req, res) => {
 module.exports.get_calls_summary = async (req, res) => {
   try {
     const allCalls = await CallDetails.find({});
-
-    // Get the current date in "YYYY-MM-DD" format
-
     const from = req.query.from;
     const to = req.query.to;
     const hotel_name = req.query.hotel_name;
-    const disposition = req.query.disposition
-    
-    // Define the date format you expect
-    const dateFormat = 'dd-MM-yyyy';
-    
-    // Parse the start and end dates from the query parameters using the defined format
-    const startDate = parse(from, dateFormat, new Date());
-    const endDate = parse(to, dateFormat, new Date());
-    
-    // Format the dates back to the desired format
-    const formattedStartDate = format(startDate, dateFormat);
-    const formattedEndDate = format(endDate, dateFormat);
-    
-    // Initialize an array to collect guest_details for each call
+    const disposition = req.query.disposition;
     const guestDetailsArray = [];
-    
-    async function processCalls() {
-      for (const call of allCalls) {
-        for (const callDetail of call.calls_details) {
-          // Parse the call_date string into a Date object using the defined format
-          const callDate = parse(callDetail.call_date, dateFormat, new Date());
-    
-          // Format the call date in the same format
-          const formattedCallDate = format(callDate, dateFormat);
-    
-          // Check if the formatted call date is within the specified date range
-          if (formattedCallDate >= formattedStartDate && formattedCallDate <= formattedEndDate || callDetail.disposition === disposition || callDetail.hotel_name === hotel_name) {
+
+    // Check if any query parameters are provided
+    const shouldApplyFiltering = from === null && to === null && hotel_name === null && disposition === null;
+
+    if (shouldApplyFiltering === true) {
+      // No query parameters provided, execute this block
+      async function processCalls() {
+        for (const call of allCalls) {
+          for (const callDetail of call.calls_details) {
             const guest_data = await guest_booking_collections.findOne({ guest_id: callDetail.guest_id });
             const agent_model = await employee_model.findOne({ agent_id: callDetail.agent_id });
-    
+
             if (guest_data || agent_model) {
               const Full_name = `${guest_data.guest_first_name} ${guest_data.guest_last_name}`;
               const agent_full_name = `${agent_model.first_name} ${agent_model.last_name}`;
               const guest_details = {
                 guest_name: Full_name,
                 guest_mobile: guest_data.guest_mobile_number,
-                date: formattedCallDate,
+                date: callDetail.call_date,
                 agent_name: agent_full_name,
                 disposition: callDetail.disposition,
                 hotel_name: callDetail.hotel_name,
                 guest_email: guest_data.guest_email,
                 remark: callDetail.remark,
               };
-              guestDetailsArray.push(guest_details); // Collect guest_details for this call
+              guestDetailsArray.push(guest_details);
             }
           }
         }
       }
+
+      await processCalls();
+
+      if (guestDetailsArray.length === 0) {
+        return res.status(404).json({ msg: 'Data not found' });
+      }
+
+      return res.status(200).json({ guest_details: guestDetailsArray });
+    } else {
+      if (from === "null" && to ==="null") {
+        // Search for other filters when date parameters are not provided
+        async function processCalls() {
+          for (const call of allCalls) {
+            for (const callDetail of call.calls_details) {
+              if (
+                callDetail.disposition === disposition ||
+                callDetail.hotel_name === hotel_name
+              ) {
+                const guest_data = await guest_booking_collections.findOne({ guest_id: callDetail.guest_id });
+                const agent_model = await employee_model.findOne({ agent_id: callDetail.agent_id });
+
+                if (guest_data || agent_model) {
+                  const Full_name = `${guest_data.guest_first_name} ${guest_data.guest_last_name}`;
+                  const agent_full_name = `${agent_model.first_name} ${agent_model.last_name}`;
+                  const guest_details = {
+                    guest_name: Full_name,
+                    guest_mobile: guest_data.guest_mobile_number,
+                    date: callDetail.call_date,
+                    agent_name: agent_full_name,
+                    disposition: callDetail.disposition,
+                    hotel_name: callDetail.hotel_name,
+                    guest_email: guest_data.guest_email,
+                    remark: callDetail.remark,
+                  };
+                  guestDetailsArray.push(guest_details);
+                }
+              }
+            }
+          }
+        }
+
+        await processCalls();
+
+        if (guestDetailsArray.length === 0) {
+          return res.status(404).json({ msg: 'Data not found' });
+        }
+
+        return res.status(200).json({ guest_details: guestDetailsArray });
+      }else{
+
+      const dateFormat = 'dd-MM-yyyy';
+      const startDate = parse(from, dateFormat, new Date()) ;
+      const endDate = parse(to, dateFormat, new Date());
+      const formattedStartDate = format(startDate, dateFormat);
+      const formattedEndDate = format(endDate, dateFormat);
+
+      async function processCalls() {
+        for (const call of allCalls) {
+          for (const callDetail of call.calls_details) {
+            const callDate = parse(callDetail.call_date, dateFormat, new Date());
+            const formattedCallDate = format(callDate, dateFormat);
+
+            if ((formattedCallDate >= formattedStartDate && formattedCallDate <= formattedEndDate) ||callDetail.disposition === disposition ||callDetail.hotel_name === hotel_name) {
+              const guest_data = await guest_booking_collections.findOne({ guest_id: callDetail.guest_id });
+              const agent_model = await employee_model.findOne({ agent_id: callDetail.agent_id });
+
+              if (guest_data || agent_model) {
+                const Full_name = `${guest_data.guest_first_name} ${guest_data.guest_last_name}`;
+                const agent_full_name = `${agent_model.first_name} ${agent_model.last_name}`;
+                const guest_details = {
+                  guest_name: Full_name,
+                  guest_mobile: guest_data.guest_mobile_number,
+                  date: formattedCallDate,
+                  agent_name: agent_full_name,
+                  disposition: callDetail.disposition,
+                  hotel_name: callDetail.hotel_name,
+                  guest_email: guest_data.guest_email,
+                  remark: callDetail.remark,
+                };
+                guestDetailsArray.push(guest_details);
+              }
+            }
+          }
+        }
+      }
+
+      await processCalls();
+
+      if (guestDetailsArray.length === 0) {
+        return res.status(404).json({ msg: 'Data not found' });
+      }
+
+      return res.status(200).json({ guest_details: guestDetailsArray });
+
+      }
+      
+
+      
     }
-    
-    await processCalls();
-    
-    // Return the guestDetailsArray as part of your response
-    return res.status(200).json({ guest_details: guestDetailsArray });
-    
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };
