@@ -333,7 +333,7 @@ module.exports.get_employee_calls = async (req, res) => {
     const startOfMonth = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      1
+      
     );
     const formattedStartOfMonth = format(startOfMonth, "dd-MM-yyyy");
 
@@ -557,17 +557,13 @@ module.exports.findTopFiveBookingByEmployees = async (req, res) => {
 // last 7 days booking of employee
 
 
-
 module.exports.total_booking_in_week_by_employee = async (req, res) => {
   try {
     // Get the current date and format it as "DD-MM-YYYY"
-    const currentInputDate = "15-09-2023"
-    
-
+    const currentInputDate = "15-09-2023";
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
 
-
-    let totalCount = 0; //
+    let totalCount = 0;
 
     for (let i = 0; i < 7; i++) {
       const startDate = moment(currentInputDate, "DD-MM-YYYY")
@@ -579,17 +575,48 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
         .endOf("day")
         .format("DD-MM-YYYY");
 
-      const bookingsCount = await employee_guest.countDocuments({
-        employee_id: employeeId,
-        call_date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
+      // Query the Booking collection for matching documents
+      const bookings = await EmployeeModel.find({
+        "call_details[0].employee_id": employeeId,
+        // "calls_details.call_date": {
+        //   $gte: startDate,
+        //   $lte: endDate,
+        // },
+        
+        "calls_details.disposition": "spam", // Replace with the desired disposition status
       });
 
-      totalCount += bookingsCount;
-     
+      console.log(bookings)
+  
+
+      // Iterate through the matching documents to count and fetch guest info
+      for (const booking of bookings) {
+        const matchingCalls = booking.calls_details.filter(
+          (call) =>
+            call.call_date >= startDate &&
+            call.call_date <= endDate &&
+            call.disposition === "Reservation" // Replace with the desired disposition status
+        );
+
+        totalCount += matchingCalls.length;
+
+        // Fetch guest info for each matching guest_id
+        for (const call of matchingCalls) {
+          const guestId = call.guest_id;
+          // Now, you can fetch guest information using guestId
+          // Example:
+           const guestInfo = await employee_guest.findOne({ guest_id: call.guest_id });
+           const guestName = `${guestInfo.guest_first_name} ${guestInfo.guest_last_name}`;
+
+           console.log(guestName)
+           const guestEmail = guestInfo.guest_email;
+
+
+          // Process guestInfo as needed
+        }
+      }
     }
+
     const results = [{ totalBooking: totalCount }];
 
     return res.status(200).json({ results });

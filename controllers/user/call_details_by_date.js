@@ -168,7 +168,6 @@ module.exports.get_inbound_calls_and_outbounds_callDetails = async (
           // Find the corresponding guestDetails based on the guest_id from the current call
           const callDate = parse(call.call_date, dateFormat, new Date());
           const formattedCallDate = format(callDate, dateFormat);
-         
 
           if ((formattedCallDate >= formattedStartDate &&formattedCallDate <= formattedEndDate)) {
           

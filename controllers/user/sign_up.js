@@ -212,7 +212,7 @@ module.exports.login = async (req, res) => {
 // delete employee 
 
 module.exports.delete_employee = async(req,res)=>{
-  const delete_employee = await data.deleteOne({employee_id:req.body.employee_id})
+  const delete_employee = await data.deleteOne({employee_id:req.query.employee_id})
 
   return res.status(200).json({token :"data deleted successfully"})
 }
