@@ -207,3 +207,46 @@ module.exports.login = async (req, res) => {
     }
   }
 };
+
+
+// delete employee 
+
+module.exports.delete_employee = async(req,res)=>{
+  const delete_employee = await data.deleteOne({employee_id:req.body.employee_id})
+
+  return res.status(200).json({token :"data deleted successfully"})
+}
+
+//edit employee
+
+
+module.exports.update_employee = async (req, res) => {
+  try {
+    // Extract the employee_id from the request body
+    const { employee_id} = req.body;
+
+    // Find the record by employee_id
+    const existingEmployee = await data.findOne({ employee_id: employee_id });
+
+    if (!existingEmployee) {
+      return res.status(404).json({ msg: 'Employee not found' });
+    }
+
+    // Create a new document based on the existingEmployee data
+    const savedata = new data({
+      field1: existingEmployee.field1, // Copy existing data to the new document
+      field2: existingEmployee.field2,
+      // Add more fields to copy as needed
+      // Make any modifications to the copied data based on newData
+      ...newData,
+    });
+
+    // Save the new document to the database
+    const savedEmployee = await savedata.save();
+
+    return res.status(200).json({ msg: 'Employee updated successfully', savedEmployee });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: 'Internal server error' });
+  }
+};

@@ -301,13 +301,6 @@ module.exports.call_history = async (req, res) => {
 
       await processCalls();
 
-      // const allCalls = call_data.reduce((accumulator, currentValue) => {
-      //   return accumulator.concat(currentValue.calls_details);
-      // }, []);
-
-      // const inboundCalls = allCalls.filter(callDetail => callDetail.type === "inbound");
-      // const outboundCalls = allCalls.filter(callDetail => callDetail.type === "outbound");
-
       return res.status(200).json({ inboundCalls, outboundCalls });
     } else {
       return res
@@ -509,5 +502,99 @@ module.exports.findTopFiveEmployees = async (req, res) => {
   } catch (error) {
     console.error("Error finding top employees:", error);
     throw error;
+  }
+};
+
+
+// top five bookings by agent
+
+
+module.exports.findTopFiveBookingByEmployees = async (req, res) => {
+  try {
+    const topEmployees = await employee_guest.aggregate([
+      {
+        $group: {
+          _id: '$employee_id',
+          totalBookings: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { totalBookings: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+
+    // Optionally, you can reshape the result to have a more meaningful structure
+    const topEmployeesWithDetails = await Promise.all(
+      topEmployees.map(async (employee) => {
+        // Call your other collection function here
+        const additionalData = await employee_model.findOne({
+          employee_id: employee._id,
+        });
+
+        // Construct the resulting object
+        return {
+          employee_id: employee._id,
+          totalBookings: employee.totalBookings,
+          // Include additional employee details
+          first_name: additionalData ? additionalData.first_name : "",
+          last_name: additionalData ? additionalData.last_name : "",
+          // Add more details as needed
+        };
+      })
+    );
+
+    // You can further populate employee details if needed using Mongoose's populate method
+    return res.status(200).json({ topEmployeesWithDetails });
+  } catch (error) {
+    console.error("Error finding top employees:", error);
+    throw error;
+  }
+};
+
+// last 7 days booking of employee
+
+
+
+module.exports.total_booking_in_week_by_employee = async (req, res) => {
+  try {
+    // Get the current date and format it as "DD-MM-YYYY"
+    const currentInputDate = "15-09-2023"
+    
+
+    const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
+
+
+    let totalCount = 0; //
+
+    for (let i = 0; i < 7; i++) {
+      const startDate = moment(currentInputDate, "DD-MM-YYYY")
+        .subtract(i, "days")
+        .startOf("day")
+        .format("DD-MM-YYYY");
+      const endDate = moment(currentInputDate, "DD-MM-YYYY")
+        .subtract(i, "days")
+        .endOf("day")
+        .format("DD-MM-YYYY");
+
+      const bookingsCount = await employee_guest.countDocuments({
+        employee_id: employeeId,
+        call_date: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      });
+
+      totalCount += bookingsCount;
+     
+    }
+    const results = [{ totalBooking: totalCount }];
+
+    return res.status(200).json({ results });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };

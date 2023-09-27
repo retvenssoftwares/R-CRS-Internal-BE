@@ -13,5 +13,7 @@ router.post("/call_history",emp_call_details.call_history)
 router.get("/get_employee_call_details_by_emp_id",emp_call_details.get_employee_calls)
 router.get("/get_weekend_call_details/:employeeId",emp_call_details.total_calls_in_week_by_employee)
 router.get("/get_top_five_employee_call",emp_call_details.findTopFiveEmployees)
+router.get("/get_top_five_employee_booking",emp_call_details.findTopFiveBookingByEmployees)
+router.get("/get_weekend_booking_details/:employeeId",emp_call_details.total_booking_in_week_by_employee)
 
 module.exports = router;
