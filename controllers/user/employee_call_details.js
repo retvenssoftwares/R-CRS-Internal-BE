@@ -497,7 +497,7 @@ module.exports.findTopFiveEmployees = async (req, res) => {
         // Construct the resulting object
         return {
           employee_id: employee._id,
-          first_name: additionalData.first_name,
+          first_name: additionalData ? additionalData.first_name : "",
           totalCalls: employee.totalCalls,
           // Include additional data
         };
