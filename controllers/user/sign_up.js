@@ -223,7 +223,7 @@ module.exports.delete_employee = async(req,res)=>{
 module.exports.update_employee = async (req, res) => {
   try {
     // Extract the employee_id from the request body
-    const { employee_id} = req.body;
+    const { employee_id} = req.query;
 
     // Find the record by employee_id
     const existingEmployee = await data.findOne({ employee_id: employee_id });
@@ -234,11 +234,18 @@ module.exports.update_employee = async (req, res) => {
 
     // Create a new document based on the existingEmployee data
     const savedata = new data({
-      field1: existingEmployee.field1, // Copy existing data to the new document
-      field2: existingEmployee.field2,
-      // Add more fields to copy as needed
-      // Make any modifications to the copied data based on newData
-      ...newData,
+      userName: req.body.userName, // Copy existing data to the new document
+      agent_id: req.body.agent_id,
+      first_name : req.body.first_name,
+      last_name : req.body.last_name,
+      joining_date : req.body.joining_date,
+      gender :  req.body.gender,
+      status : req.body.status,
+      department : req.body.department,
+      mobile_number : req.body.mobile_number,
+      email : req.body.email,
+      designation :req.body.designation
+      
     });
 
     // Save the new document to the database

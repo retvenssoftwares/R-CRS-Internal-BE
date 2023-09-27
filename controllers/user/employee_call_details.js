@@ -2,7 +2,7 @@ const EmployeeModel = require("../../models/call_details"); // Import your Mongo
 const employee_guest = require("../../models/booking_model");
 const employee_model = require("../../models/employee_model");
 const moment = require("moment");
-const { format } = require("date-fns");
+const { format, parse, subDays } = require("date-fns");
 
 //get call details by employee_id
 module.exports = async (req, res) => {
@@ -151,25 +151,32 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
 
       return res.status(200).json({ inboundCalls, outboundCalls });
     } else if (employee_id) {
-      call_data = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
+      call_data = await EmployeeModel.find({
+        "calls_details.employee_id": employee_id,
+      });
       call_data.reverse();
       const allCalls = call_data.reduce((accumulator, currentValue) => {
         return accumulator.concat(currentValue.calls_details);
       }, []);
 
-      const inboundCalls = allCalls.filter(callDetail => callDetail.type === "inbound");
-      const outboundCalls = allCalls.filter(callDetail => callDetail.type === "outbound");
+      const inboundCalls = allCalls.filter(
+        (callDetail) => callDetail.type === "inbound"
+      );
+      const outboundCalls = allCalls.filter(
+        (callDetail) => callDetail.type === "outbound"
+      );
 
       return res.status(200).json({ inboundCalls, outboundCalls });
     } else {
-      return res.status(400).json({ message: "Enter a valid role or employee_id" });
+      return res
+        .status(400)
+        .json({ message: "Enter a valid role or employee_id" });
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 //call_histroy of admin and emmployee
 module.exports.call_history = async (req, res) => {
@@ -197,7 +204,7 @@ module.exports.call_history = async (req, res) => {
                   end_time: callDetail.end_time,
                   call_time: callDetail.start_time,
                   call_type: callDetail.type,
-                  date : callDetail.call_date,
+                  date: callDetail.call_date,
                   disposition: callDetail.disposition,
                   remark: callDetail.remark,
                   guest_first_name: add.guest_first_name,
@@ -218,7 +225,7 @@ module.exports.call_history = async (req, res) => {
                   end_time: callDetail.end_time,
                   call_time: callDetail.start_time,
                   call_type: callDetail.type,
-                  date : callDetail.call_date,
+                  date: callDetail.call_date,
                   disposition: callDetail.disposition,
                   remark: callDetail.remark,
                   guest_first_name: add.guest_first_name,
@@ -259,7 +266,7 @@ module.exports.call_history = async (req, res) => {
                     end_time: callDetail.end_time,
                     call_time: callDetail.start_time,
                     call_type: callDetail.type,
-                    date : callDetail.call_date,
+                    date: callDetail.call_date,
                     disposition: callDetail.disposition,
                     remark: callDetail.remark,
                     guest_first_name: add.guest_first_name,
@@ -282,7 +289,7 @@ module.exports.call_history = async (req, res) => {
                     end_time: callDetail.end_time,
                     call_time: callDetail.start_time,
                     call_type: callDetail.type,
-                    date : callDetail.call_date,
+                    date: callDetail.call_date,
                     disposition: callDetail.disposition,
                     remark: callDetail.remark,
                     guest_first_name: add.guest_first_name,
@@ -332,8 +339,7 @@ module.exports.get_employee_calls = async (req, res) => {
     // Get the start of the month
     const startOfMonth = new Date(
       currentDate.getFullYear(),
-      currentDate.getMonth(),
-      
+      currentDate.getMonth()
     );
     const formattedStartOfMonth = format(startOfMonth, "dd-MM-yyyy");
 
@@ -505,16 +511,14 @@ module.exports.findTopFiveEmployees = async (req, res) => {
   }
 };
 
-
 // top five bookings by agent
-
 
 module.exports.findTopFiveBookingByEmployees = async (req, res) => {
   try {
     const topEmployees = await employee_guest.aggregate([
       {
         $group: {
-          _id: '$employee_id',
+          _id: "$employee_id",
           totalBookings: { $sum: 1 },
         },
       },
@@ -556,70 +560,59 @@ module.exports.findTopFiveBookingByEmployees = async (req, res) => {
 
 // last 7 days booking of employee
 
-
 module.exports.total_booking_in_week_by_employee = async (req, res) => {
   try {
     // Get the current date and format it as "DD-MM-YYYY"
-    const currentInputDate = "15-09-2023";
+    const allCalls = await EmployeeModel.find({});
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
+    const dateFormat = "dd-MM-yyyy";
+    const from = "29-09-2023";
+    const startDate = parse(from, dateFormat, new Date());
+    const endDate = subDays(startDate, 7);
+    const formattedStartDate = format(startDate, dateFormat);
+    const formattedEndDate = format(endDate, dateFormat);
+ 
 
-    let totalCount = 0;
+    const dateCounts = {}
 
-    for (let i = 0; i < 7; i++) {
-      const startDate = moment(currentInputDate, "DD-MM-YYYY")
-        .subtract(i, "days")
-        .startOf("day")
-        .format("DD-MM-YYYY");
-      const endDate = moment(currentInputDate, "DD-MM-YYYY")
-        .subtract(i, "days")
-        .endOf("day")
-        .format("DD-MM-YYYY");
+    for (const call of allCalls) {
+      for (const callDetail of call.calls_details) {
+        const callDate = parse(callDetail.call_date, dateFormat, new Date());
+        const formattedCallDate = format(callDate, dateFormat);
 
-      // Query the Booking collection for matching documents
-      const bookings = await EmployeeModel.find({
-        "call_details[0].employee_id": employeeId,
-        // "calls_details.call_date": {
-        //   $gte: startDate,
-        //   $lte: endDate,
-        // },
-        
-        "calls_details.disposition": "spam", // Replace with the desired disposition status
-      });
+        if (formattedCallDate <= formattedStartDate &&formattedCallDate >= formattedEndDate) {
+          
+          const bookings = await EmployeeModel.find({
+            "calls_details.employee_id": employeeId,
+            "calls_details.disposition": "spam",
+          });
 
-      console.log(bookings)
-  
-
-      // Iterate through the matching documents to count and fetch guest info
-      for (const booking of bookings) {
-        const matchingCalls = booking.calls_details.filter(
-          (call) =>
-            call.call_date >= startDate &&
-            call.call_date <= endDate &&
-            call.disposition === "Reservation" // Replace with the desired disposition status
-        );
-
-        totalCount += matchingCalls.length;
-
-        // Fetch guest info for each matching guest_id
-        for (const call of matchingCalls) {
-          const guestId = call.guest_id;
-          // Now, you can fetch guest information using guestId
-          // Example:
-           const guestInfo = await employee_guest.findOne({ guest_id: call.guest_id });
-           const guestName = `${guestInfo.guest_first_name} ${guestInfo.guest_last_name}`;
-
-           console.log(guestName)
-           const guestEmail = guestInfo.guest_email;
-
-
-          // Process guestInfo as needed
+          //console.log(bookings)
+         
+          
+          for (const booking of bookings){
+            //const dateFormat = "dd-mm-yy";
+            const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
+            const formattedBookingDate = format(bookingDate, dateFormat);
+            console.log(formattedBookingDate)
+            
+            // Increment the count for the booking's date
+            if (!dateCounts[formattedBookingDate]) {
+              dateCounts[formattedBookingDate] = 1;
+            } else {
+              dateCounts[formattedBookingDate]++;
+            }
+          }
         }
       }
     }
 
-    const results = [{ totalBooking: totalCount }];
+    const allCount = Object.entries(dateCounts).map(([date, count]) => ({
+      date,
+      count,
+    }));
 
-    return res.status(200).json({ results });
+    return res.status(200).json({ allCount });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
