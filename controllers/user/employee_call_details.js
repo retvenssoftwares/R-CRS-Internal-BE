@@ -566,8 +566,8 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
     const allCalls = await EmployeeModel.find({});
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
     const dateFormat = "dd-MM-yyyy";
-    const from = "29-09-2023";
-    const startDate = parse(from, dateFormat, new Date());
+    const inputDate = req.query.inputDate;
+    const startDate = parse(inputDate, dateFormat, new Date());
     const endDate = subDays(startDate, 7);
     const formattedStartDate = format(startDate, dateFormat);
     const formattedEndDate = format(endDate, dateFormat);
@@ -594,7 +594,7 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
             //const dateFormat = "dd-mm-yy";
             const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
             const formattedBookingDate = format(bookingDate, dateFormat);
-            console.log(formattedBookingDate)
+          
             
             // Increment the count for the booking's date
             if (!dateCounts[formattedBookingDate]) {
