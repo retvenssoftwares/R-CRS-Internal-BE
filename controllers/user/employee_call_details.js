@@ -593,9 +593,7 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
               "calls_details.call_date":formattedCallDate
             });
   
-            console.log(bookings[0].calls_details.call_date)
            
-            
             for (const booking of bookings){
               //const dateFormat = "dd-mm-yy";
               const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());

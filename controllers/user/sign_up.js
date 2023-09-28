@@ -221,39 +221,76 @@ module.exports.delete_employee = async(req,res)=>{
 
 
 module.exports.update_employee = async (req, res) => {
-  try {
-    // Extract the employee_id from the request body
-    const { employee_id} = req.body;
+ 
+      try {
+        const employee_id = req.body.employee_id; // Assuming the employee ID is in the route parameters
+    
+        // Find the existing employee by their ID
+        const existingEmployee = await data.findOne({ employee_id });
+    
+        if (!existingEmployee) {
+          return res.status(404).json({ msg: 'Employee not found' });
+        }
+    
+        // Define an empty object for the new data
+        const newData = {};
+    
+        // Check each field in the request and add it to the new data if it has changed
+        if (req.body.userName !== undefined) {
+          newData.userName = req.body.userName;
+        }
+        if (req.body.agent_id !== undefined) {
+          newData.agent_id = req.body.agent_id;
+        }
+        if (req.body.first_name !== undefined) {
+          newData.first_name = req.body.first_name;
+        }
+        if (req.body.last_name !== undefined) {
+          newData.last_name = req.body.last_name;
+        }
+        if (req.body.joining_date !== undefined) {
+          newData.joining_date = req.body.joining_date;
+        }
+        if (req.body.gender !== undefined) {
+          newData.gender = req.body.gender;
+        }
+        if (req.body.status !== undefined) {
+          newData.status = req.body.status;
+        }
+        if (req.body.department !== undefined) {
+          newData.department = req.body.department;
+        }
+        if (req.body.mobile_number !== undefined) {
+          newData.mobile_number = req.body.mobile_number;
+        }
+        if (req.body.email !== undefined) {
+          newData.email = req.body.email;
+        }
+        if (req.body.designation !== undefined) {
+          newData.designation = req.body.designation;
+        }
+        // Add more fields as needed
+    
+        // Use findOneAndUpdate to update the existing employee's data
+        const updatedEmployee = await data.findOneAndUpdate(
+          { employee_id },
+          { $set: newData },
+          { new: true } // This option returns the updated document
+        );
+    
+        if (updatedEmployee) {
+          return res.status(200).json({ msg: 'Employee data updated successfully', employee: updatedEmployee });
+        } else {
+          return res.status(500).json({ msg: 'Failed to update employee data' });
+        }
+      }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      } 
+}
+  
 
-    // Find the record by employee_id
-    const existingEmployee = await data.findOne({ employee_id: employee_id });
 
-    if (!existingEmployee) {
-      return res.status(404).json({ msg: 'Employee not found' });
-    }
 
-    // Create a new document based on the existingEmployee data
-    const savedata = new data({
-      userName: req.body.userName, // Copy existing data to the new document
-      agent_id: req.body.agent_id,
-      first_name : req.body.first_name,
-      last_name : req.body.last_name,
-      joining_date : req.body.joining_date,
-      gender :  req.body.gender,
-      status : req.body.status,
-      department : req.body.department,
-      mobile_number : req.body.mobile_number,
-      email : req.body.email,
-      designation :req.body.designation
-      
-    });
 
-    // Save the new document to the database
-    const savedEmployee = await savedata.save();
-
-    return res.status(200).json({ msg: 'Employee updated successfully', savedEmployee });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ msg: 'Internal server error' });
-  }
-};
+ 
