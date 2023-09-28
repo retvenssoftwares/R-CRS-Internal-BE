@@ -223,7 +223,7 @@ module.exports.delete_employee = async(req,res)=>{
 module.exports.update_employee = async (req, res) => {
   try {
     // Extract the employee_id from the request body
-    const { employee_id} = req.query;
+    const { employee_id} = req.body;
 
     // Find the record by employee_id
     const existingEmployee = await data.findOne({ employee_id: employee_id });

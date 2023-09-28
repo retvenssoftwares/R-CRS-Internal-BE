@@ -379,7 +379,8 @@ module.exports.get_employee_calls = async (req, res) => {
 module.exports.total_calls_in_week_by_employee = async (req, res) => {
   try {
     const inputDate = req.query.inputDate;
-    const momentInputDate = moment(inputDate, "DD-MM-YYYY");
+    const momentInputDate = moment(inputDate, "DD-MM-YY");
+  
 
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
 
@@ -390,12 +391,12 @@ module.exports.total_calls_in_week_by_employee = async (req, res) => {
         .clone()
         .subtract(i, "days")
         .startOf("day")
-        .format("DD-MM-YYYY");
+        .format("DD-MM-YY");
       const endDate = momentInputDate
         .clone()
         .subtract(i, "days")
         .endOf("day")
-        .format("DD-MM-YYYY");
+        .format("DD-MM-YY");
 
       const dispositionCounts = await EmployeeModel.aggregate([
         {
@@ -565,6 +566,7 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
     // Get the current date and format it as "DD-MM-YYYY"
     const allCalls = await EmployeeModel.find({});
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
+    const role = req.query.role;
     const dateFormat = "dd-MM-yyyy";
     const inputDate = req.query.inputDate;
     const startDate = parse(inputDate, dateFormat, new Date());
@@ -581,28 +583,63 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
         const formattedCallDate = format(callDate, dateFormat);
 
         if (formattedCallDate <= formattedStartDate &&formattedCallDate >= formattedEndDate) {
-          
-          const bookings = await EmployeeModel.find({
-            "calls_details.employee_id": employeeId,
-            "calls_details.disposition": "spam",
-          });
+          console.log(formattedCallDate)
 
-          //console.log(bookings)
-         
-          
-          for (const booking of bookings){
-            //const dateFormat = "dd-mm-yy";
-            const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
-            const formattedBookingDate = format(bookingDate, dateFormat);
-          
+          if(employeeId){
+
+            const bookings = await EmployeeModel.find({
+              "calls_details.employee_id": employeeId,
+              "calls_details.disposition": "spam",
+              "calls_details.call_date":formattedCallDate
+            });
+  
+            console.log(bookings[0].calls_details.call_date)
+           
             
-            // Increment the count for the booking's date
-            if (!dateCounts[formattedBookingDate]) {
-              dateCounts[formattedBookingDate] = 1;
-            } else {
-              dateCounts[formattedBookingDate]++;
+            for (const booking of bookings){
+              //const dateFormat = "dd-mm-yy";
+              const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
+              const formattedBookingDate = format(bookingDate, dateFormat);
+            
+              
+              // Increment the count for the booking's date
+              if (!dateCounts[formattedBookingDate]) {
+                dateCounts[formattedBookingDate] = 1;
+              } else {
+                dateCounts[formattedBookingDate]++;
+              }
             }
+          }else{
+
+            if(role === "Admin" || role === "admin"){
+
+              const bookings = await EmployeeModel.find({
+                "calls_details.disposition": "spam",
+              });
+    
+              //console.log(bookings)
+             
+              
+              for (const booking of bookings){
+                //const dateFormat = "dd-mm-yy";
+                const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
+                const formattedBookingDate = format(bookingDate, dateFormat);
+              
+                
+                // Increment the count for the booking's date
+                if (!dateCounts[formattedBookingDate]) {
+                  dateCounts[formattedBookingDate] = 1;
+                } else {
+                  dateCounts[formattedBookingDate]++;
+                }
+              }
+            }else{
+              return res.status(500).json({message : "Enter a valid data"})
+            }
+            
           }
+          
+          
         }
       }
     }
