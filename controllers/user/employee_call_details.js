@@ -1,20 +1,19 @@
-const EmployeeModel = require('../../models/call_details'); // Import your Mongoose model
-const employee_guest = require('../../models/booking_model')
-const employee_model = require('../../models/employee_model')
-const moment = require('moment')
-const { format } = require('date-fns');
-
+const EmployeeModel = require("../../models/call_details"); // Import your Mongoose model
+const employee_guest = require("../../models/booking_model");
+const employee_model = require("../../models/employee_model");
+const moment = require("moment");
+const { format, parse, subDays } = require("date-fns");
 
 //get call details by employee_id
 module.exports = async (req, res) => {
   try {
     const employee_id = req.params.employee_id;
-    
+
     // Use the aggregation framework to filter the documents
     const result = await EmployeeModel.aggregate([
       {
         $match: {
-          'calls_details.employee_id': employee_id,
+          "calls_details.employee_id": employee_id,
         },
       },
       {
@@ -23,28 +22,27 @@ module.exports = async (req, res) => {
           device_type: 1,
           calls_details: {
             $filter: {
-              input: '$calls_details',
-              as: 'callDetail',
-              cond: { $eq: ['$$callDetail.employee_id', employee_id] },
+              input: "$calls_details",
+              as: "callDetail",
+              cond: { $eq: ["$$callDetail.employee_id", employee_id] },
             },
           },
         },
       },
     ]);
-    console.log("123456789")
+
     if (result && result.length > 0) {
       // If data is found, send it as a response
       res.status(200).json(result);
     } else {
       // If no data is found, send a 404 response
-      res.status(200).json({ error: 'Employee not found' });
+      res.status(200).json({ error: "Employee not found" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 //get call of emp by date
 
@@ -84,20 +82,18 @@ module.exports = async (req, res) => {
 //   }
 // };
 
-
-
-
 // all employee
 
-module.exports.get_all_employee = async(req,res)=>{
-  if(req.body.role === "Admin"){
-    const get_all_employee = await employee_model.find({})
-    return res.status(200).json({get_all_employee})
-  }else{
-    return res.status(500).json({message:"you are not authroized to see employee details"})
+module.exports.get_all_employee = async (req, res) => {
+  if (req.query.role === "Admin") {
+    const get_all_employee = await employee_model.find({});
+    return res.status(200).json({ get_all_employee });
+  } else {
+    return res
+      .status(500)
+      .json({ message: "you are not authroized to see employee details" });
   }
- 
-}
+};
 
 // get_guest_by_role_and_employee_id
 module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
@@ -115,7 +111,9 @@ module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
       return res.status(200).json({ guest_data });
     } else {
       if (employee_id) {
-        const guest_info = await employee_guest.find({ employee_id: employee_id });
+        const guest_info = await employee_guest.find({
+          employee_id: employee_id,
+        });
         guest_info.reverse(); // Reverse the order of the array
 
         return res.status(200).json({ guest_info });
@@ -127,10 +125,7 @@ module.exports.get_guest_booking_by_role_emp_id = async (req, res) => {
   }
 };
 
-
 //role wise call details
-
-
 
 module.exports.get_call_by_role_emp_id = async (req, res) => {
   try {
@@ -139,12 +134,11 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
     let call_data;
 
     if (role === "Admin" || role === "admin") {
-      const inboundCalls = [];
-      const outboundCalls = [];
-    
       call_data = await EmployeeModel.find({});
       call_data.reverse();
-    
+      const inboundCalls = [];
+      const outboundCalls = [];
+
       call_data.forEach((call) => {
         call.calls_details.forEach((callDetail) => {
           if (callDetail.type === "inbound") {
@@ -154,49 +148,200 @@ module.exports.get_call_by_role_emp_id = async (req, res) => {
           }
         });
       });
-    
+
       return res.status(200).json({ inboundCalls, outboundCalls });
     } else if (employee_id) {
-      call_data = await EmployeeModel.find({ 'calls_details.employee_id': employee_id });
+      call_data = await EmployeeModel.find({
+        "calls_details.employee_id": employee_id,
+      });
       call_data.reverse();
       const allCalls = call_data.reduce((accumulator, currentValue) => {
         return accumulator.concat(currentValue.calls_details);
       }, []);
-  
-      return res.status(200).json({ call_info: allCalls });
-    } else {
-      return res.status(400).json({ message: "Enter a valid role or employee_id" });
-    }
 
-    //Flatten all call records into a single array
-   
+      const inboundCalls = allCalls.filter(
+        (callDetail) => callDetail.type === "inbound"
+      );
+      const outboundCalls = allCalls.filter(
+        (callDetail) => callDetail.type === "outbound"
+      );
+
+      return res.status(200).json({ inboundCalls, outboundCalls });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Enter a valid role or employee_id" });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+//call_histroy of admin and emmployee
+module.exports.call_history = async (req, res) => {
+  try {
+    const { role, employee_id } = req.body;
 
+    let call_data;
 
+    if (role === "Admin" || role === "admin") {
+      call_data = await EmployeeModel.find({});
+      call_data.reverse();
+      const inboundCalls = [];
+      const outboundCalls = [];
+
+      const processCalls = async () => {
+        for (const call of call_data) {
+          for (const callDetail of call.calls_details) {
+            if (callDetail.type === "inbound") {
+              const add = await employee_guest.findOne({
+                guest_id: callDetail.guest_id,
+              });
+              if (add) {
+                callDetail.guest_calls_details = {
+                  start_time: callDetail.start_time,
+                  end_time: callDetail.end_time,
+                  call_time: callDetail.start_time,
+                  call_type: callDetail.type,
+                  date: callDetail.call_date,
+                  disposition: callDetail.disposition,
+                  remark: callDetail.remark,
+                  guest_first_name: add.guest_first_name,
+                  guest_last_name: add.guest_last_name,
+                  caller_id: add.guest_mobile_number,
+                };
+              }
+              inboundCalls.push({
+                guest_calls_details: callDetail.guest_calls_details,
+              });
+            } else if (callDetail.type === "outbound") {
+              const add = await employee_guest.findOne({
+                guest_id: callDetail.guest_id,
+              });
+              if (add) {
+                callDetail.guest_calls_details = {
+                  start_time: callDetail.start_time,
+                  end_time: callDetail.end_time,
+                  call_time: callDetail.start_time,
+                  call_type: callDetail.type,
+                  date: callDetail.call_date,
+                  disposition: callDetail.disposition,
+                  remark: callDetail.remark,
+                  guest_first_name: add.guest_first_name,
+                  guest_last_name: add.guest_last_name,
+                  caller_id: add.guest_mobile_number,
+                };
+              }
+              outboundCalls.push({
+                guest_detail: callDetail.guest_calls_details,
+              });
+            }
+          }
+        }
+      };
+
+      await processCalls();
+
+      return res.status(200).json({ inboundCalls, outboundCalls });
+    } else if (employee_id) {
+      call_data = await EmployeeModel.find({
+        "calls_details.employee_id": employee_id,
+      });
+      call_data.reverse();
+      const inboundCalls = [];
+      const outboundCalls = [];
+
+      const processCalls = async () => {
+        for (const call of call_data) {
+          for (const callDetail of call.calls_details) {
+            if (callDetail.type === "inbound") {
+              if (callDetail.employee_id === employee_id) {
+                const add = await employee_guest.findOne({
+                  guest_id: callDetail.guest_id,
+                });
+                if (add) {
+                  callDetail.guest_calls_details = {
+                    start_time: callDetail.start_time,
+                    end_time: callDetail.end_time,
+                    call_time: callDetail.start_time,
+                    call_type: callDetail.type,
+                    date: callDetail.call_date,
+                    disposition: callDetail.disposition,
+                    remark: callDetail.remark,
+                    guest_first_name: add.guest_first_name,
+                    guest_last_name: add.guest_last_name,
+                    caller_id: add.guest_mobile_number,
+                  };
+                }
+                inboundCalls.push({
+                  guest_calls_details: callDetail.guest_calls_details,
+                });
+              }
+            } else if (callDetail.type === "outbound") {
+              if (callDetail.employee_id === employee_id) {
+                const add = await employee_guest.findOne({
+                  guest_id: callDetail.guest_id,
+                });
+                if (add) {
+                  callDetail.guest_calls_details = {
+                    start_time: callDetail.start_time,
+                    end_time: callDetail.end_time,
+                    call_time: callDetail.start_time,
+                    call_type: callDetail.type,
+                    date: callDetail.call_date,
+                    disposition: callDetail.disposition,
+                    remark: callDetail.remark,
+                    guest_first_name: add.guest_first_name,
+                    guest_last_name: add.guest_last_name,
+                    caller_id: add.guest_mobile_number,
+                  };
+                }
+                outboundCalls.push({
+                  guest_detail: callDetail.guest_calls_details,
+                });
+              }
+            }
+          }
+        }
+      };
+
+      await processCalls();
+
+      return res.status(200).json({ inboundCalls, outboundCalls });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Enter a valid role or employee_id" });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 // get all type of call count by employee_id
 module.exports.get_employee_calls = async (req, res) => {
   try {
-    const employeeId = req.params.employeeId; // Assuming the employee ID is passed as a route parameter
+    const employeeId = req.query.employeeId; // Assuming the employee ID is passed as a route parameter
 
-    if(!employeeId){
+    if (!employeeId) {
       return res.status(500).json({ error: "Not Found" });
     }
 
-    let totalInboundCalls = 0;
     let totalOutboundCalls = 0;
     let totalCalls = 0;
-    let totalTodayCalls = 0
+    let totalInboundCallsThisMonth = 0;
 
     const currentDate = new Date();
-    const formattedDate = format(currentDate, 'dd-MM-yyyy');
+    const formattedCurrentDate = format(currentDate, "dd-MM-yyyy");
 
-
+    // Get the start of the month
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth()
+    );
+    const formattedStartOfMonth = format(startOfMonth, "dd-MM-yyyy");
 
     const allCalls = await EmployeeModel.find({});
 
@@ -204,23 +349,25 @@ module.exports.get_employee_calls = async (req, res) => {
       call.calls_details.forEach((callDetail) => {
         if (callDetail.employee_id === employeeId) {
           if (callDetail.type === "inbound") {
-            totalInboundCalls++;
+            if (
+              callDetail.call_date >= formattedStartOfMonth &&
+              callDetail.call_date <= formattedCurrentDate
+            ) {
+              totalInboundCallsThisMonth++;
+            }
           } else if (callDetail.type === "outbound") {
             totalOutboundCalls++;
           }
-          if (callDetail.call_date === formattedDate) {
-            totalTodayCalls++;
-          }
+
           totalCalls++;
         }
       });
     });
-    console.log(totalCalls)
+
     return res.status(200).json({
       totalCalls,
-      totalInboundCalls,
+      totalInboundCallsThisMonth,
       totalOutboundCalls,
-      totalTodayCalls
     });
   } catch (error) {
     console.error(error);
@@ -228,69 +375,80 @@ module.exports.get_employee_calls = async (req, res) => {
   }
 };
 
-
 // get all call in a week by employee_id
 module.exports.total_calls_in_week_by_employee = async (req, res) => {
   try {
     const inputDate = req.query.inputDate;
-    const momentInputDate = moment(inputDate, 'DD-MM-YYYY');
+    const momentInputDate = moment(inputDate, "DD-MM-YY");
+  
 
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
 
     const results = [];
 
     for (let i = 0; i < 7; i++) {
-      const startDate = momentInputDate.clone().subtract(i, 'days').startOf('day').format('DD-MM-YYYY');
-      const endDate = momentInputDate.clone().subtract(i, 'days').endOf('day').format('DD-MM-YYYY');
+      const startDate = momentInputDate
+        .clone()
+        .subtract(i, "days")
+        .startOf("day")
+        .format("DD-MM-YY");
+      const endDate = momentInputDate
+        .clone()
+        .subtract(i, "days")
+        .endOf("day")
+        .format("DD-MM-YY");
 
       const dispositionCounts = await EmployeeModel.aggregate([
         {
-          $unwind: '$calls_details'
+          $unwind: "$calls_details",
         },
         {
           $match: {
-            'calls_details.call_date': {
+            "calls_details.call_date": {
               $gte: startDate,
-              $lte: endDate
+              $lte: endDate,
             },
-            'calls_details.employee_id': employeeId // Filter by employee_id
-          }
+            "calls_details.employee_id": employeeId, // Filter by employee_id
+          },
         },
         {
           $group: {
-            _id: '$calls_details.disposition',
-            count: { $sum: 1 }
-          }
+            _id: "$calls_details.disposition",
+            count: { $sum: 1 },
+          },
         },
         {
-          $sort: { count: -1 }
+          $sort: { count: -1 },
         },
         {
-          $limit: 1
-        }
+          $limit: 1,
+        },
       ]);
 
-      const highestDisposition = dispositionCounts.length > 0 ? {
-        disposition: dispositionCounts[0]._id,
-        count: dispositionCounts[0].count
-      } : { disposition: '', count: 0 };
+      const highestDisposition =
+        dispositionCounts.length > 0
+          ? {
+              disposition: dispositionCounts[0]._id,
+              count: dispositionCounts[0].count,
+            }
+          : { disposition: "", count: 0 };
 
       const callCount = await EmployeeModel.aggregate([
         {
-          $unwind: '$calls_details'
+          $unwind: "$calls_details",
         },
         {
           $match: {
-            'calls_details.call_date': {
+            "calls_details.call_date": {
               $gte: startDate,
-              $lte: endDate
+              $lte: endDate,
             },
-            'calls_details.employee_id': employeeId // Filter by employee_id
-          }
+            "calls_details.employee_id": employeeId, // Filter by employee_id
+          },
         },
         {
-          $count: 'total'
-        }
+          $count: "total",
+        },
       ]);
 
       const totalRecords = callCount.length > 0 ? callCount[0].total : 0;
@@ -301,22 +459,21 @@ module.exports.total_calls_in_week_by_employee = async (req, res) => {
     return res.status(200).json({ results });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-
-// get call details of top 5 employee 
+// get call details of top 5 employee
 
 module.exports.findTopFiveEmployees = async (req, res) => {
   try {
     const topEmployees = await EmployeeModel.aggregate([
       {
-        $unwind: '$calls_details', // Unwind the calls_details array
+        $unwind: "$calls_details", // Unwind the calls_details array
       },
       {
         $group: {
-          _id: '$calls_details.employee_id', // Group by employee_id
+          _id: "$calls_details.employee_id", // Group by employee_id
           totalCalls: { $sum: 1 }, // Calculate the total number of calls for each employee
         },
       },
@@ -331,16 +488,147 @@ module.exports.findTopFiveEmployees = async (req, res) => {
     ]);
 
     // Optionally, you can reshape the result to have a more meaningful structure
-    const topEmployeesWithDetails = topEmployees.map((employee) => ({
-      employee_id: employee._id,
-      totalCalls: employee.totalCalls,
-    }));
+    const topEmployeesWithDetails = await Promise.all(
+      topEmployees.map(async (employee) => {
+        // Call your other collection function here
+        const additionalData = await employee_model.findOne({
+          employee_id: employee._id,
+        });
+
+        // Construct the resulting object
+        return {
+          employee_id: employee._id,
+          first_name: additionalData ? additionalData.first_name : "",
+          totalCalls: employee.totalCalls,
+          // Include additional data
+        };
+      })
+    );
 
     return res.status(200).json({ topEmployeesWithDetails });
   } catch (error) {
-    console.error('Error finding top employees:', error);
+    console.error("Error finding top employees:", error);
+    throw error;
+  }
+};
+
+// top five bookings by agent
+
+module.exports.findTopFiveBookingByEmployees = async (req, res) => {
+  try {
+    const topEmployees = await employee_guest.aggregate([
+      {
+        $group: {
+          _id: "$employee_id",
+          totalBookings: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { totalBookings: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+
+    // Optionally, you can reshape the result to have a more meaningful structure
+    const topEmployeesWithDetails = await Promise.all(
+      topEmployees.map(async (employee) => {
+        // Call your other collection function here
+        const additionalData = await employee_model.findOne({
+          employee_id: employee._id,
+        });
+
+        // Construct the resulting object
+        return {
+          employee_id: employee._id,
+          totalBookings: employee.totalBookings,
+          // Include additional employee details
+          first_name: additionalData ? additionalData.first_name : "",
+          last_name: additionalData ? additionalData.last_name : "",
+          // Add more details as needed
+        };
+      })
+    );
+
+    // You can further populate employee details if needed using Mongoose's populate method
+    return res.status(200).json({ topEmployeesWithDetails });
+  } catch (error) {
+    console.error("Error finding top employees:", error);
     throw error;
   }
 };
 
 
+
+// last 7 days booking of employee
+module.exports.total_booking_in_week_by_employee = async (req, res) => {
+  try {
+    // Get the current date and format it as "DD-MM-YYYY"
+    const allCalls = await EmployeeModel.find({});
+    const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
+    const role = req.query.role;
+    const inputDate = req.query.inputDate;
+    const dateFormat = "dd-mm-yyyy";
+    
+    
+    const add= getPastSevenDays(inputDate)
+    function getPastSevenDays(inputDate) {
+      //const dateFormat = "dd-mm-yyyy"; // Date format of the input
+      const startDate = parse(inputDate, dateFormat, new Date());
+      const dateArray = [];
+    
+      for (let i = 0; i < 7; i++) {
+        const date = subDays(startDate, i);
+        const formattedDate = format(date, dateFormat);
+        dateArray.push(formattedDate);
+      }
+    
+      return dateArray;
+    }
+    getPastSevenDays(inputDate)
+
+
+
+    const dateCounts = {}
+
+    for (const call of allCalls) {
+      for (const callDetail of call.calls_details) {
+        const callDate = parse(callDetail.call_date, dateFormat, new Date());
+        const formattedCallDate = format(callDate, dateFormat);
+
+        if (add.includes(formattedCallDate)) {
+         
+          if(employeeId === callDetail.employee_id && callDetail.disposition === "spam"){
+            
+            if (!dateCounts[formattedCallDate]) {
+              dateCounts[formattedCallDate] = 1;
+            } else {
+              dateCounts[formattedCallDate]++;
+            }
+
+          }else{
+            if(role === "Admin" || role === "admin"){
+              if (!dateCounts[formattedCallDate]) {
+                dateCounts[formattedCallDate] = 1;
+              } else {
+                dateCounts[formattedCallDate]++;
+              }
+            }
+          }
+        }
+
+    }
+    }
+
+    const allCount = Object.entries(dateCounts).map(([date, count]) => ({
+      date,
+      count,
+    }));
+
+    return res.status(200).json({ allCount });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};

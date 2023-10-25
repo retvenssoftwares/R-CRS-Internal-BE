@@ -1,6 +1,6 @@
 const data = require("../../models/call_details");
 const guest_details = require("../../models/booking_model");
-const employee = require("../../models/employee_model");
+const employee_details = require("../../models/employee_model");
 const randomstring = require("randomstring");
 
 
@@ -51,52 +51,99 @@ module.exports.post_call_details = async (req, res) => {
   }
 };
 
-// type of call by guest_id and employee_Id
+
+// get call_details of employee by type
 module.exports.get_call_details = async (req, res) => {
   const type_of_call = req.params.type_of_call;
-  const { guest_id, employee_id } = req.body;
+  const { employee_id } = req.body;
 
-  const get_call = await data.find({
-    calls_details: {
-      $elemMatch: { type: type_of_call },
-    },
-  });
+  try {
+    const pipeline = [
+      {
+        $match: {
+          'calls_details.employee_id': employee_id,
+        },
+      },
+    ];
 
-  const get_guest_detals = await guest_details.findOne({ guest_id: guest_id });
-  const employee_data = await employee.findOne({ employee_id: employee_id });
+    const callsWithGuestDetails = await data.aggregate(pipeline);
 
-  if (!get_guest_detals || !employee_data) {
-    return res.status(500).json({ msg: "enter valid employee or guest_id" });
+    if (callsWithGuestDetails.length === 0) {
+      return res.status(404).json({ msg: `No ${type_of_call} calls found` });
+    }
+
+    let groupedCalls = {}; 
+    let l = null; // Initialize l as null
+
+    for (const callDetail of callsWithGuestDetails) {
+      for (const call of callDetail.calls_details) {
+        if (call.type === type_of_call) {
+          const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
+          const aget = await employee_details.findOne({employee_id : call.employee_id})
+          // console.log(aget)
+    
+          // Update l with the last_support_by of the current call
+          l = call.last_support_by;
+          
+          // Create a new call object with guest_details if guestDetails is found
+          if (guestDetails && aget) {
+            const agent_full_name = `${aget.first_name} ${aget.last_name}`;
+            const guestInfo = {
+              guest_id: call.guest_id,
+              guest_first_name: guestDetails.guest_first_name,
+              guest_last_name: guestDetails.guest_last_name,
+              type: call.type,
+              agent_id: aget.agent_id,
+              agent_name: agent_full_name,
+              guest_mobile_number: guestDetails.guest_mobile_number,
+              guest_location: guestDetails.guest_location,
+              guest_last_name: guestDetails.guest_last_name,
+              disposition: call.disposition,
+              last_support_by: l, // Include last_support_by in guestInfo
+            };
+    
+            if (!groupedCalls[type_of_call]) {
+              groupedCalls[type_of_call] = [];
+            }
+            
+            if (!groupedCalls[type_of_call].find(item => item.guest_id === call.guest_id)) {
+              groupedCalls[type_of_call].push({
+                ...guestInfo,
+                call_details: [],
+              });
+            }
+            
+            groupedCalls[type_of_call].forEach(item => {
+              if (item.guest_id === call.guest_id) {
+                item.call_details.push(call);
+              }
+            });
+          }
+        }
+      }
+    }
+    
+    // Convert the groupedCalls object into an array
+    const responseArray = Object.entries(groupedCalls).map(([callType, callList]) => ({
+      [callType]: callList,
+      last_support_by: l, // Include last_support_by in the response
+    }));
+    
+    // Now l will contain the last_support_by of the last call in the loop
+  
+    
+    // Return the response with last_support_by included
+    return res.status(200).json(responseArray);
+    
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: 'Internal server error' });
   }
-
-  if (get_call.length === 0) {
-    return res.status(500).json({ msg: "No data found" });
-  }
-
-  if (!get_call) {
-    return res.status(500).json({ msg: "Invalid type" });
-  }
-
-  const details = {
-    guest_first_name: get_guest_detals.guest_first_name,
-    guest_last_name: get_guest_detals.guest_last_name,
-    //guest_mobile_number : get_guest_detals.guest_mobile_number,
-    guest_location: get_guest_detals.guest_location,
-    caller_type: get_guest_detals.caller_type,
-    callback_date_time: get_guest_detals.callback_date_time,
-    salutation: get_guest_detals.salutation,
-    remark: get_guest_detals.remark,
-    hotel_name: get_guest_detals.hotel_name,
-    purpose_of_travel: get_guest_detals.purpose_of_travel,
-    employee_first_name: employee_data.first_name,
-    employee_last_name: employee_data.last_name,
-    department: employee_data.department,
-    call_details: get_call,
-  };
-  return res.status(200).json({ details });
 };
 
-// Import the Mongoose model
+
+
 
 //const guest_details = require('../../models/guest_details_model'); // Import the Mongoose model
 module.exports.getCallDetails_by_guest_mobile_number = async (req, res) => {

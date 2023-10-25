@@ -38,6 +38,7 @@ const userlogin = require('./routers/user/signup_router')
 const call_details = require("./routers/user/call_details_router")
 const call_details_by_date = require('./routers/user/call_details_by_date_router')
 const employee_call_details = require('./routers/user/employee_call_details_router')
+const pause_call = require("./routers/user/post_pause_reason_router")
 
 //location
 const location = require('./routers/location/getLocationrouter');
@@ -84,6 +85,7 @@ app.use('/api',get_guest_booking_details)
 app.use("/api",call_details)
 app.use('/api',call_details_by_date)
 app.use('/api',employee_call_details )
+app.use('/api',pause_call)
 
 //location
 app.use('/api',location)
