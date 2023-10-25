@@ -559,21 +559,36 @@ module.exports.findTopFiveBookingByEmployees = async (req, res) => {
   }
 };
 
-// last 7 days booking of employee
 
+
+// last 7 days booking of employee
 module.exports.total_booking_in_week_by_employee = async (req, res) => {
   try {
     // Get the current date and format it as "DD-MM-YYYY"
     const allCalls = await EmployeeModel.find({});
     const employeeId = req.query.employeeId; // Assuming employeeId is passed as a query parameter
     const role = req.query.role;
-    const dateFormat = "dd-MM-yyyy";
     const inputDate = req.query.inputDate;
-    const startDate = parse(inputDate, dateFormat, new Date());
-    const endDate = subDays(startDate, 7);
-    const formattedStartDate = format(startDate, dateFormat);
-    const formattedEndDate = format(endDate, dateFormat);
- 
+    const dateFormat = "dd-mm-yyyy";
+    
+    
+    const add= getPastSevenDays(inputDate)
+    function getPastSevenDays(inputDate) {
+      //const dateFormat = "dd-mm-yyyy"; // Date format of the input
+      const startDate = parse(inputDate, dateFormat, new Date());
+      const dateArray = [];
+    
+      for (let i = 0; i < 7; i++) {
+        const date = subDays(startDate, i);
+        const formattedDate = format(date, dateFormat);
+        dateArray.push(formattedDate);
+      }
+    
+      return dateArray;
+    }
+    getPastSevenDays(inputDate)
+
+
 
     const dateCounts = {}
 
@@ -582,64 +597,28 @@ module.exports.total_booking_in_week_by_employee = async (req, res) => {
         const callDate = parse(callDetail.call_date, dateFormat, new Date());
         const formattedCallDate = format(callDate, dateFormat);
 
-        if (formattedCallDate <= formattedStartDate &&formattedCallDate >= formattedEndDate) {
-          console.log(formattedCallDate)
-
-          if(employeeId){
-
-            const bookings = await EmployeeModel.find({
-              "calls_details.employee_id": employeeId,
-              "calls_details.disposition": "spam",
-              "calls_details.call_date":formattedCallDate
-            });
-  
-           
-            for (const booking of bookings){
-              //const dateFormat = "dd-mm-yy";
-              const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
-              const formattedBookingDate = format(bookingDate, dateFormat);
+        if (add.includes(formattedCallDate)) {
+         
+          if(employeeId === callDetail.employee_id && callDetail.disposition === "spam"){
             
-              
-              // Increment the count for the booking's date
-              if (!dateCounts[formattedBookingDate]) {
-                dateCounts[formattedBookingDate] = 1;
-              } else {
-                dateCounts[formattedBookingDate]++;
-              }
+            if (!dateCounts[formattedCallDate]) {
+              dateCounts[formattedCallDate] = 1;
+            } else {
+              dateCounts[formattedCallDate]++;
             }
+
           }else{
-
             if(role === "Admin" || role === "admin"){
-
-              const bookings = await EmployeeModel.find({
-                "calls_details.disposition": "spam",
-              });
-    
-              //console.log(bookings)
-             
-              
-              for (const booking of bookings){
-                //const dateFormat = "dd-mm-yy";
-                const bookingDate = parse(booking.calls_details[0].call_date, dateFormat, new Date());
-                const formattedBookingDate = format(bookingDate, dateFormat);
-              
-                
-                // Increment the count for the booking's date
-                if (!dateCounts[formattedBookingDate]) {
-                  dateCounts[formattedBookingDate] = 1;
-                } else {
-                  dateCounts[formattedBookingDate]++;
-                }
+              if (!dateCounts[formattedCallDate]) {
+                dateCounts[formattedCallDate] = 1;
+              } else {
+                dateCounts[formattedCallDate]++;
               }
-            }else{
-              return res.status(500).json({message : "Enter a valid data"})
             }
-            
           }
-          
-          
         }
-      }
+
+    }
     }
 
     const allCount = Object.entries(dateCounts).map(([date, count]) => ({

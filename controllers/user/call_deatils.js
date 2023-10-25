@@ -53,7 +53,6 @@ module.exports.post_call_details = async (req, res) => {
 
 
 // get call_details of employee by type
-
 module.exports.get_call_details = async (req, res) => {
   const type_of_call = req.params.type_of_call;
   const { employee_id } = req.body;
@@ -81,12 +80,13 @@ module.exports.get_call_details = async (req, res) => {
         if (call.type === type_of_call) {
           const guestDetails = await guest_details.findOne({ guest_id: call.guest_id });
           const aget = await employee_details.findOne({employee_id : call.employee_id})
+          // console.log(aget)
     
           // Update l with the last_support_by of the current call
           l = call.last_support_by;
           
           // Create a new call object with guest_details if guestDetails is found
-          if (guestDetails) {
+          if (guestDetails && aget) {
             const agent_full_name = `${aget.first_name} ${aget.last_name}`;
             const guestInfo = {
               guest_id: call.guest_id,
