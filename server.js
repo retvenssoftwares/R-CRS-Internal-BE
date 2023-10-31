@@ -94,6 +94,10 @@ app.use('/api',state)
 app.use('/api',cities)
 app.use('/api',fetchcoutries)
 app.use('/api',userlogin)
+//
+app.use(cors({
+    origin:"*"
+}));
 
 mongoose
     .connect(process.env.DATABASE, {
