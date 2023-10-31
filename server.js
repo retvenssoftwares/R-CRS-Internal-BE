@@ -94,10 +94,15 @@ app.use('/api',state)
 app.use('/api',cities)
 app.use('/api',fetchcoutries)
 app.use('/api',userlogin)
+
 //
-app.use(cors({
-    origin:"*"
-}));
+app.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+});
 
 mongoose
     .connect(process.env.DATABASE, {
