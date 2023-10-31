@@ -46,11 +46,11 @@ jobs:
           ls
           echo "${{ secrets.ENV_FILE }}" > .env
 
-      # - name: Restart server using pm2
-      #   run: |
-      #     pm2 restart 0
-      #   env: 
-      #     CI: true
+      - name: Restart server using pm2
+        run: |
+          pm2 restart 0
+        env: 
+          CI: true
         # this pm2 start function is used when server is restarted 
         # otherwise we will just use pm2 restart 0 and save
     #   - name: Start server using pm2
