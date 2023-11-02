@@ -48,7 +48,7 @@ const cities = require('./routers/location/getAllcitiesrouter');
 const fetchcoutries = require('./routers/location/fetchAllCountryRouter');
 
 
-app.use(cors({origin: "http://localhost:3000"}))
+app.use(cors({origin: "*"}))
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
