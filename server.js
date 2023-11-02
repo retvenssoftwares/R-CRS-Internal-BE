@@ -95,6 +95,24 @@ app.use('/api',cities)
 app.use('/api',fetchcoutries)
 app.use('/api',userlogin)
 
+//
+const corsOpts = {
+    origin: '*',
+  
+    methods: [
+      'GET',
+      'POST',
+      'PATCH',
+      'DELETE'
+    ],
+  
+    allowedHeaders: [
+      'Content-Type',
+    ],
+  };
+  
+  app.use(cors(corsOpts));
+
 mongoose
     .connect(process.env.DATABASE, {
         useNewUrlParser: true,
