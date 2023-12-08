@@ -20,57 +20,7 @@ const bookingSchema = mongoose.Schema({
         default:mongoose.Types.ObjectId
     },
     // roomTypes: [
-    //     {
-    //         room_type:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         rate_plan:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         rate_type:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         rate_plan_id:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         room_type_id:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         rate_type_id:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         base_rate:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         extra_adult_rate:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         extra_child_rate:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         adult_number:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         child_number:{
-    //             type:String,
-    //             default:""
-    //         },
-    //         child_age:{
-    //             type:String,
-    //             default:""
-    //         }
-    //     }
-    // ],
+
     arrival_date:{
         type: String,
         default:""

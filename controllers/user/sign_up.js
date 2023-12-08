@@ -84,6 +84,7 @@ module.exports.sign_up = async (req, res) => {
       });
 
       const agent_id = await data.findOne({ agent_id: savedata.agent_id });
+      
 
       if (agent_id) {
         return res.status(500).json({ message: "agent_id already exists" });
